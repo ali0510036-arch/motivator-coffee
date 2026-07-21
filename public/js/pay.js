@@ -1,107 +1,46 @@
 const DEFAULT_RECIPIENT = 'Магомедов Халил Умарасхабович';
+const SBER_BANK_ID = '100000000111';
 
-const BANK_PAY = {
+const BANK_META = {
   '100000000111': {
     name: 'Сбербанк',
     logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000111.png',
-    direct: true,
-    webUrl: (p) => `https://www.sberbank.com/sms/pbpn?${new URLSearchParams({
-      requisiteNumber: p.phone,
-      amount: p.amount,
-    }).toString()}`,
   },
   '100000000004': {
     name: 'Т-Банк',
     logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000004.png',
-    webUrl: (p) => `https://l.tbank.ru/c2c-qr-choose-bank?${new URLSearchParams({
-      requisiteNumber: `+${p.phone}`,
-      bankCode: '100000000004',
-      amount: p.amount,
-    }).toString()}`,
-    schema: 'bank100000000004',
-    packageName: 'com.idamob.tinkoff.android',
   },
   '110000000005': {
     name: 'Банк ВТБ',
     logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000005.png',
-    webUrl: (p) => `https://online.vtb.ru/i/paymentSbp?${new URLSearchParams({
-      phone: p.phone,
-      amount: p.amount,
-    }).toString()}`,
-    schema: 'bank110000000005',
-    packageName: 'ru.vtb24.mobilebanking.android',
   },
   '100000000008': {
     name: 'Альфа-Банк',
     logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000008.png',
-    webUrl: (p) => `https://web.alfabank.ru/payments/phone-transfer?${new URLSearchParams({
-      phoneNumber: p.phone,
-      amount: p.amount,
-    }).toString()}`,
-    schema: 'bank100000000008',
-    packageName: 'ru.alfabank.mobile.android',
   },
   '100000000007': {
     name: 'Райффайзен Банк',
     logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000007.png',
-    webUrl: (p) => `https://online.raiffeisen.ru/payments/phone?${new URLSearchParams({
-      phone: p.phone,
-      amount: p.amount,
-    }).toString()}`,
-    schema: 'bank100000000007',
-    packageName: 'ru.raiffeisennews',
   },
   '100000000001': {
     name: 'Газпромбанк',
     logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000001.png',
-    webUrl: (p) => `https://sbpgpb.ru/c2bpayments?${new URLSearchParams({
-      phone: p.phone,
-      amount: p.amount,
-    }).toString()}`,
-    schema: 'bank100000000001',
-    packageName: 'ru.gazprombank.android.mobilebank.app',
   },
   '100000000010': {
     name: 'Банк ПСБ',
     logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000010.png',
-    webUrl: (p) => `https://ib.psbank.ru/sbp/payment?${new URLSearchParams({
-      phone: p.phone,
-      amount: p.amount,
-    }).toString()}`,
-    schema: 'bank100000000010',
-    packageName: 'logo.com.mbanking',
   },
   '100000000013': {
     name: 'Совкомбанк',
     logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000013.png',
-    webUrl: (p) => `https://l.tbank.ru/c2c-qr-choose-bank?${new URLSearchParams({
-      requisiteNumber: `+${p.phone}`,
-      bankCode: '100000000013',
-      amount: p.amount,
-    }).toString()}`,
-    schema: 'bank100000000013',
-    packageName: 'ru.sovcomcard.halva.v1',
   },
   '100000000017': {
     name: 'МТС Банк',
     logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000017.png',
-    webUrl: (p) => `https://mdeng.ru/paymentsC2BBank?${new URLSearchParams({
-      phone: p.phone,
-      amount: p.amount,
-    }).toString()}`,
-    schema: 'bank100000000017',
-    packageName: 'ru.mts.money',
   },
   '100000000020': {
     name: 'РСХБ',
     logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000020.png',
-    webUrl: (p) => `https://l.tbank.ru/c2c-qr-choose-bank?${new URLSearchParams({
-      requisiteNumber: `+${p.phone}`,
-      bankCode: '100000000020',
-      amount: p.amount,
-    }).toString()}`,
-    schema: 'bank100000000020',
-    packageName: 'ru.rshb.dbo',
   },
 };
 
@@ -110,6 +49,38 @@ function normalizePhone(raw) {
   if (digits.length === 11 && digits.startsWith('7')) return digits;
   if (digits.length === 10) return `7${digits}`;
   return digits;
+}
+
+function normalizeBankId(bankId) {
+  return bankId === '100000000005' ? '110000000005' : bankId;
+}
+
+function buildSberPbpnUrl(phone, amount) {
+  return `https://www.sberbank.com/sms/pbpn?${new URLSearchParams({
+    requisiteNumber: phone,
+    amount: Number(amount).toFixed(2),
+  }).toString()}`;
+}
+
+function buildChoiseBankUrl(bankCode, phone, amount) {
+  return `https://www.sberbank.com/ru/choise_bank?${new URLSearchParams({
+    requisiteNumber: `+${phone}`,
+    bankCode,
+    amount: Number(amount).toFixed(2),
+  }).toString()}`;
+}
+
+function buildPaymentUrl(bankId, phone, amount) {
+  const normalizedId = normalizeBankId(bankId);
+  const digits = normalizePhone(phone);
+  const amountStr = Number(amount).toFixed(2);
+  if (!digits || !Number.isFinite(Number(amount))) return null;
+
+  if (normalizedId === SBER_BANK_ID) {
+    return buildSberPbpnUrl(digits, amountStr);
+  }
+
+  return buildChoiseBankUrl(normalizedId, digits, amountStr);
 }
 
 function formatPhoneDisplay(phone) {
@@ -132,7 +103,7 @@ function readParams() {
   const comment = (query.get('comment') || '').trim();
 
   return {
-    bank: bank === '100000000005' ? '110000000005' : bank,
+    bank: normalizeBankId(bank),
     phone,
     amount: Number.isFinite(amount) ? amount.toFixed(2) : '',
     amountNumber: Number.isFinite(amount) ? amount : 0,
@@ -141,76 +112,25 @@ function readParams() {
 }
 
 function getBankConfig(bankId, bankMeta) {
-  const known = BANK_PAY[bankId];
-  if (known) return known;
-
-  if (!bankMeta) return null;
+  const meta = BANK_META[bankId] || {};
 
   return {
-    name: bankMeta.name || 'Ваш банк',
-    logo: bankMeta.logo || '',
-    webUrl: (p) => {
-      if (bankMeta.webClientUrl) {
-        const params = new URLSearchParams({ phone: p.phone, amount: p.amount });
-        const joiner = bankMeta.webClientUrl.includes('?') ? '&' : '?';
-        return `${bankMeta.webClientUrl}${joiner}${params.toString()}`;
-      }
-      return `https://l.tbank.ru/c2c-qr-choose-bank?${new URLSearchParams({
-        requisiteNumber: `+${p.phone}`,
-        bankCode: bankId,
-        amount: p.amount,
-      }).toString()}`;
-    },
-    schema: bankMeta.schema || null,
-    packageName: bankMeta.packageName || null,
+    name: meta.name || bankMeta?.name || 'Ваш банк',
+    logo: meta.logo || bankMeta?.logo || '',
+    usesGateway: bankId !== SBER_BANK_ID,
   };
 }
 
-function buildAppLink(config) {
-  if (!config.schema) return null;
-
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  if (isAndroid && config.packageName) {
-    return `intent://#Intent;scheme=${config.schema};package=${config.packageName};end`;
-  }
-
-  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (isIOS) {
-    return `${config.schema}://`;
-  }
-
-  return null;
-}
-
-function openPayment(config, payload, { auto = false } = {}) {
-  const webUrl = config.webUrl(payload);
+function openPayment(config, paymentUrl) {
   const statusText = document.getElementById('payStatusText');
   if (statusText) {
-    statusText.textContent = auto
-      ? 'Открываем сайт банка…'
-      : 'Переход на сайт банка…';
+    statusText.textContent = config.usesGateway
+      ? 'Открываем оплату через СБП…'
+      : 'Открываем Сбербанк Онлайн…';
   }
 
-  if (config.direct) {
-    window.location.href = webUrl;
-    return;
-  }
-
-  const appLink = buildAppLink(config);
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  if (isMobile && appLink) {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = appLink;
-    document.body.appendChild(iframe);
-    window.setTimeout(() => {
-      window.location.href = webUrl;
-    }, 1500);
-    return;
-  }
-
-  window.location.href = webUrl;
+  if (!paymentUrl) return;
+  window.location.href = paymentUrl;
 }
 
 async function copyComment(text) {
@@ -244,8 +164,10 @@ async function initPayPage() {
   }
 
   const config = getBankConfig(params.bank, bankMeta);
-  if (!config) {
-    document.getElementById('payStatusText').textContent = 'Банк не найден. Вернитесь и выберите банк снова.';
+  const paymentUrl = buildPaymentUrl(params.bank, params.phone, params.amount);
+
+  if (!paymentUrl) {
+    document.getElementById('payStatusText').textContent = 'Не удалось собрать ссылку для оплаты.';
     return;
   }
 
@@ -258,9 +180,9 @@ async function initPayPage() {
     // keep default
   }
 
-  const payload = { phone: params.phone, amount: params.amount };
   const bankLogo = document.getElementById('payBankLogo');
   const bankName = document.getElementById('payBankName');
+  const hint = document.querySelector('.pay-page__hint');
 
   bankName.textContent = config.name;
   if (config.logo && bankLogo) {
@@ -269,13 +191,17 @@ async function initPayPage() {
     bankLogo.hidden = false;
   }
 
+  if (hint && config.usesGateway) {
+    hint.textContent = 'Сейчас откроется страница СБП: телефон и сумма уже будут подставлены, затем — сайт или приложение вашего банка. Комментарий к заказу скопируйте в поле «Сообщение».';
+  }
+
   document.getElementById('payRecipient').textContent = recipientName;
   document.getElementById('payPhone').textContent = formatPhoneDisplay(params.phone);
   document.getElementById('payAmount').textContent = formatAmount(params.amountNumber);
   document.getElementById('payComment').textContent = params.comment || '—';
 
   document.getElementById('payOpenWeb').addEventListener('click', () => {
-    openPayment(config, payload, { auto: false });
+    openPayment(config, paymentUrl);
   });
 
   document.getElementById('payCopyComment').addEventListener('click', () => {
@@ -287,7 +213,7 @@ async function initPayPage() {
   }
 
   window.setTimeout(() => {
-    openPayment(config, payload, { auto: true });
+    openPayment(config, paymentUrl);
   }, 900);
 }
 
