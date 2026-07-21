@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const { flavors, BOX_SIZE, BOX_PRICE } = require('./products');
 const db = require('./db');
+const sms = require('./sms');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -62,11 +63,51 @@ app.post('/api/admin/login', (req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/api/sms/send', async (req, res) => {
+  try {
+    const result = await sms.sendVerificationCode(req.body?.phone);
+    if (!result.ok) {
+      return res.status(400).json({ error: result.error });
+    }
+    res.json({
+      ok: true,
+      displayPhone: result.displayPhone,
+      retryAfter: result.retryAfter,
+    });
+  } catch (err) {
+    console.error('[SMS send]', err.message);
+    res.status(502).json({ error: 'Не удалось отправить SMS. Попробуйте позже.' });
+  }
+});
+
+app.post('/api/sms/verify', (req, res) => {
+  const result = sms.verifyCode(req.body?.phone, req.body?.code);
+  if (!result.ok) {
+    return res.status(400).json({ error: result.error });
+  }
+  res.json({
+    ok: true,
+    displayPhone: result.displayPhone,
+    verificationToken: result.verificationToken,
+  });
+});
+
 app.post('/api/orders', (req, res) => {
-  const { customerName, customerPhone, customerEmail, customerAddress, customerComment, items } = req.body;
+  const {
+    customerName,
+    customerPhone,
+    customerEmail,
+    customerAddress,
+    customerComment,
+    phoneVerificationToken,
+    items,
+  } = req.body;
 
   if (!customerName?.trim() || !customerPhone?.trim() || !customerAddress?.trim()) {
     return res.status(400).json({ error: 'Заполните имя, телефон и адрес доставки' });
+  }
+  if (!sms.consumeVerification(phoneVerificationToken, customerPhone)) {
+    return res.status(400).json({ error: 'Подтвердите номер телефона кодом из SMS' });
   }
   if (!items?.length) {
     return res.status(400).json({ error: 'Корзина пуста' });
@@ -79,10 +120,11 @@ app.post('/api/orders', (req, res) => {
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  const normalized = sms.normalizePhone(customerPhone.trim());
   const order = db.createOrder({
     orderNumber: db.generateOrderNumber(),
     customerName: customerName.trim(),
-    customerPhone: customerPhone.trim(),
+    customerPhone: normalized ? sms.formatPhoneDisplay(normalized) : customerPhone.trim(),
     customerEmail: customerEmail?.trim() || '',
     customerAddress: customerAddress.trim(),
     customerComment: customerComment?.trim() || '',

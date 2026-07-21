@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700;800&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=32">
+  <link rel="stylesheet" href="/css/style.css?v=33">
   <link rel="stylesheet" href="/css/themes.css?v=7">
   <link rel="stylesheet" href="/css/effects.css?v=4">
   <script>
@@ -501,9 +501,17 @@
           <label for="name">Имя *</label>
           <input type="text" id="name" name="name" required placeholder="Ваше имя">
         </div>
-        <div class="form-group">
+        <div class="form-group form-group--phone">
           <label for="phone">Телефон *</label>
-          <input type="tel" id="phone" name="phone" required placeholder="+7 (___) ___-__-__">
+          <div class="phone-verify">
+            <input type="tel" id="phone" name="phone" required placeholder="+7 (989) 484-00-69" autocomplete="tel">
+            <button type="button" class="btn btn--ghost phone-verify__send" id="sendSmsBtn">Получить код</button>
+          </div>
+          <div class="phone-verify__code" id="phoneCodeRow" hidden>
+            <input type="text" id="phoneCode" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="Код из SMS" autocomplete="one-time-code">
+            <button type="button" class="btn btn--ghost phone-verify__confirm" id="verifySmsBtn">Подтвердить</button>
+          </div>
+          <p class="phone-verify__status" id="phoneVerifyStatus" aria-live="polite"></p>
         </div>
         <div class="form-group">
           <label for="email">Email</label>
@@ -533,7 +541,7 @@
     </div>
   </div>
 
-  <script src="/js/app.js?v=3"></script>
+  <script src="/js/app.js?v=4"></script>
   <script src="/js/themes.js"></script>
   <script src="/js/effects.js"></script>
 </body>

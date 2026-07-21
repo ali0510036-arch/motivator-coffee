@@ -2729,6 +2729,60 @@ body {
   border-color: var(--text);
 }
 
+.phone-verify {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.phone-verify input[type="tel"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.phone-verify__send,
+.phone-verify__confirm {
+  flex-shrink: 0;
+  padding: 12px 14px;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.phone-verify__code {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.phone-verify__code input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 16px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 1.1rem;
+  letter-spacing: 0.25em;
+  text-align: center;
+}
+
+.phone-verify__status {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.phone-verify__status--success { color: #6ecf8f; }
+.phone-verify__status--error { color: #ff8a65; }
+
+#submitOrderBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .checkout-summary {
   background: var(--bg);
   border-radius: var(--radius-sm);
