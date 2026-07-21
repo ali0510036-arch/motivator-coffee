@@ -127,6 +127,7 @@ function buildLocalPaymentDetails(order) {
   const recipientName = paymentConfig.recipientName || PAYMENT_DEFAULTS.recipientName;
   const phoneDisplay = paymentConfig.phoneDisplay || PAYMENT_DEFAULTS.phoneDisplay;
   const amount = Number(order.total);
+  const comment = `Заказ MOTIVATOR ${order.orderNumber}`;
 
   return {
     recipientName,
@@ -134,10 +135,45 @@ function buildLocalPaymentDetails(order) {
     phoneDisplay,
     amount,
     amountFormatted: `${amount.toLocaleString('ru-RU')} ₽`,
-    comment: `Заказ MOTIVATOR ${order.orderNumber}`,
-    sbpLink: `https://www.sberbank.com/sms/pbpn?requisiteNumber=${phone}&amount=${amount.toFixed(2)}`,
+    comment,
+    sbpLink: buildBankTransferLink('100000000111', phone, amount),
+    transferLinks: null,
     instruction: 'Выберите свой банк для перевода через СБП.',
   };
+}
+
+function buildBankTransferLink(bankId, phone, amount) {
+  const digits = String(phone || '').replace(/\D/g, '');
+  if (!digits) return null;
+
+  const amountStr = Number(amount).toFixed(2);
+  const normalizedId = bankId === '100000000005' ? '110000000005' : bankId;
+
+  if (normalizedId === '100000000111') {
+    return `https://www.sberbank.com/sms/pbpn?${new URLSearchParams({
+      requisiteNumber: digits,
+      amount: amountStr,
+    }).toString()}`;
+  }
+
+  return `https://t.tb.ru/c2c-qr-choose-bank?${new URLSearchParams({
+    requisiteNumber: `+${digits}`,
+    bankCode: normalizedId,
+    amount: amountStr,
+  }).toString()}`;
+}
+
+function normalizeBankList(banks) {
+  const list = Array.isArray(banks) ? [...banks] : [];
+  const hasVtb = list.some((bank) => bank.id === '110000000005' || bank.schema === 'bank110000000005');
+  if (hasVtb) return list;
+
+  const vtb = FALLBACK_PAYMENT_BANKS.find((bank) => bank.id === '110000000005');
+  if (!vtb) return list;
+
+  const tbankIndex = list.findIndex((bank) => bank.id === '100000000004');
+  list.splice(tbankIndex >= 0 ? tbankIndex + 1 : 2, 0, vtb);
+  return list;
 }
 
 async function copyText(text, button) {
@@ -174,7 +210,7 @@ function showPayCopyStatus(message) {
 const FALLBACK_PAYMENT_BANKS = [
   { id: '100000000111', name: 'Сбербанк', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000111.png', schema: 'bank100000000111', packageName: 'ru.sberbankmobile' },
   { id: '100000000004', name: 'Т-Банк', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000004.png', schema: 'bank100000000004', packageName: 'com.idamob.tinkoff.android' },
-  { id: '100000000005', name: 'Банк ВТБ', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000005.png', schema: 'bank110000000005', packageName: 'ru.vtb24.mobilebanking.android' },
+  { id: '110000000005', name: 'Банк ВТБ', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000005.png', schema: 'bank110000000005', packageName: 'ru.vtb24.mobilebanking.android', webClientUrl: 'https://online.vtb.ru/i/paymentSbp' },
   { id: '100000000008', name: 'АЛЬФА-БАНК', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000008.png', schema: 'bank100000000008', packageName: 'ru.alfabank.mobile.android' },
 ];
 
@@ -183,9 +219,9 @@ async function ensurePaymentBanks() {
   try {
     const res = await fetch('/api/payment/banks');
     const data = await res.json();
-    paymentBanks = data.banks?.length ? data.banks : FALLBACK_PAYMENT_BANKS;
+    paymentBanks = normalizeBankList(data.banks?.length ? data.banks : FALLBACK_PAYMENT_BANKS);
   } catch {
-    paymentBanks = FALLBACK_PAYMENT_BANKS;
+    paymentBanks = normalizeBankList(FALLBACK_PAYMENT_BANKS);
   }
   return paymentBanks;
 }
@@ -234,13 +270,33 @@ async function openBankPicker(payment) {
   $('#bankSearch')?.focus();
 }
 
+function resolveBankTransferLink(bank, payment) {
+  const bankId = bank.id === '100000000005' ? '110000000005' : bank.id;
+  const fromOrder = payment.transferLinks?.[bankId] || payment.transferLinks?.[bank.id];
+  if (fromOrder) return fromOrder;
+
+  if (bankId === '100000000111' && payment.sbpLink) return payment.sbpLink;
+
+  return buildBankTransferLink(bankId, payment.phone, payment.amount);
+}
+
+function openTransferLink(url) {
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile) {
+    window.location.href = url;
+    return;
+  }
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
 async function selectPaymentBank(bank, payment) {
   await copyText(payment.comment);
   closeBankPicker();
 
-  if (bank.id === '100000000111') {
-    showPayCopyStatus('Комментарий скопирован — вставьте в поле «Сообщение» в Сбербанке');
-    window.open(payment.sbpLink, '_blank', 'noopener,noreferrer');
+  const transferLink = resolveBankTransferLink(bank, payment);
+  if (transferLink) {
+    showPayCopyStatus('Комментарий скопирован — вставьте его в поле «Сообщение» или «Назначение»');
+    openTransferLink(transferLink);
     return;
   }
 

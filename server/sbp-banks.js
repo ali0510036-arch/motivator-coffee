@@ -1,7 +1,7 @@
 const POPULAR_BANK_IDS = [
   '100000000111', // Сбербанк
   '100000000004', // Т-Банк
-  '100000000005', // ВТБ
+  '110000000005', // ВТБ (NSPK schema bank110000000005)
   '100000000008', // Альфа-Банк
   '100000000007', // Райффайзен
   '100000000001', // Газпромбанк
@@ -47,7 +47,7 @@ function getFallbackBanks() {
   return [
     { id: '100000000111', name: 'Сбербанк', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000111.png', schema: 'bank100000000111', packageName: 'ru.sberbankmobile', isDrActive: true },
     { id: '100000000004', name: 'Т-Банк', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000004.png', schema: 'bank100000000004', packageName: 'com.idamob.tinkoff.android', webClientUrl: 'https://www.tinkoff.ru/mybank/payments/qr-pay', isDrActive: true },
-    { id: '100000000005', name: 'Банк ВТБ', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000005.png', schema: 'bank110000000005', packageName: 'ru.vtb24.mobilebanking.android', webClientUrl: 'https://online.vtb.ru/i/paymentSbp', isDrActive: true },
+    { id: '110000000005', name: 'Банк ВТБ', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000005.png', schema: 'bank110000000005', packageName: 'ru.vtb24.mobilebanking.android', webClientUrl: 'https://online.vtb.ru/i/paymentSbp', isDrActive: true },
     { id: '100000000008', name: 'АЛЬФА-БАНК', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000008.png', schema: 'bank100000000008', packageName: 'ru.alfabank.mobile.android', webClientUrl: 'https://alfa-mobile.alfabank.ru/mobile-public/goto/qr', isDrActive: true },
     { id: '100000000007', name: 'Райффайзен Банк', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000007.png', schema: 'bank100000000007', packageName: 'ru.raiffeisennews', webClientUrl: 'https://online.raiffeisen.ru/outer/qr/qr.nspk.ru', isDrActive: true },
     { id: '100000000001', name: 'Газпромбанк', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000001.png', schema: 'bank100000000001', packageName: 'ru.gazprombank.android.mobilebank.app', isDrActive: true },
@@ -64,9 +64,20 @@ async function getPopularBanks() {
   try {
     const all = await fetchBanksFromNspk();
     const byId = new Map(all.map((bank) => [bank.id, bank]));
+    const bySchema = new Map(all.map((bank) => [bank.schema, bank]));
     const popular = POPULAR_BANK_IDS
-      .map((id) => byId.get(id))
+      .map((id) => byId.get(id) || bySchema.get(`bank${id}`))
       .filter(Boolean);
+
+    if (!popular.some((bank) => bank.id === '110000000005')) {
+      const vtb = byId.get('110000000005')
+        || bySchema.get('bank110000000005')
+        || getFallbackBanks().find((bank) => bank.id === '110000000005');
+      if (vtb) {
+        const tbankIndex = popular.findIndex((bank) => bank.id === '100000000004');
+        popular.splice(tbankIndex >= 0 ? tbankIndex + 1 : 2, 0, vtb);
+      }
+    }
 
     cache = {
       banks: popular.length ? popular : getFallbackBanks(),

@@ -34,6 +34,46 @@ function buildSbpLink(phone, amount) {
   return `https://www.sberbank.com/sms/pbpn?${params.toString()}`;
 }
 
+function buildBankTransferLink(bankId, phone, amount) {
+  const digits = normalizePhone(phone);
+  if (!digits) return null;
+
+  const amountStr = Number(amount).toFixed(2);
+  const normalizedId = bankId === '100000000005' ? '110000000005' : bankId;
+
+  if (normalizedId === '100000000111') {
+    return `https://www.sberbank.com/sms/pbpn?${new URLSearchParams({
+      requisiteNumber: digits,
+      amount: amountStr,
+    }).toString()}`;
+  }
+
+  return `https://t.tb.ru/c2c-qr-choose-bank?${new URLSearchParams({
+    requisiteNumber: `+${digits}`,
+    bankCode: normalizedId,
+    amount: amountStr,
+  }).toString()}`;
+}
+
+function buildTransferLinks(phone, amount) {
+  const bankIds = [
+    '100000000111',
+    '100000000004',
+    '110000000005',
+    '100000000008',
+    '100000000007',
+    '100000000001',
+    '100000000010',
+    '100000000013',
+    '100000000017',
+  ];
+  const links = {};
+  for (const bankId of bankIds) {
+    links[bankId] = buildBankTransferLink(bankId, phone, amount);
+  }
+  return links;
+}
+
 function buildPaymentDetails(order) {
   const phone = getPaymentPhone();
   const amount = Number(order.total);
@@ -47,6 +87,7 @@ function buildPaymentDetails(order) {
     amountFormatted: `${amount.toLocaleString('ru-RU')} ₽`,
     comment,
     sbpLink: buildSbpLink(phone, amount),
+    transferLinks: buildTransferLinks(phone, amount),
     instruction: 'Выберите свой банк для перевода через СБП.',
   };
 }
@@ -56,5 +97,7 @@ module.exports = {
   getPaymentPhone,
   getRecipientName,
   formatPhoneDisplay,
+  buildSbpLink,
+  buildBankTransferLink,
   buildPaymentDetails,
 };
