@@ -2682,6 +2682,99 @@ body {
 
 .modal__content--success { text-align: center; }
 
+.modal__content--light {
+  background: #ffffff;
+  color: #1a1410;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.modal__content--light h2 {
+  color: #1a1410;
+}
+
+.modal__content--light .modal__close {
+  background: #f5f0eb;
+  border-color: #e5ddd4;
+  color: #6b5c50;
+}
+
+.modal__content--light .checkout-form label {
+  color: #6b5c50;
+}
+
+.modal__content--light .checkout-form input,
+.modal__content--light .checkout-form textarea {
+  background: #faf8f6;
+  border-color: #e5ddd4;
+  color: #1a1410;
+}
+
+.modal__content--light .checkout-form input:focus,
+.modal__content--light .checkout-form textarea:focus {
+  border-color: #c47a3a;
+}
+
+.modal__content--light .phone-field {
+  background: #faf8f6;
+  border-color: #e5ddd4;
+}
+
+.modal__content--light .phone-field:focus-within {
+  border-color: #c47a3a;
+}
+
+.modal__content--light .phone-field__prefix {
+  color: #6b5c50;
+}
+
+.modal__content--light .phone-field input {
+  color: #1a1410;
+}
+
+.modal__content--light .phone-verify__code input {
+  background: #faf8f6;
+  border-color: #e5ddd4;
+  color: #1a1410;
+}
+
+.modal__content--light .phone-verify__status {
+  color: #6b5c50;
+}
+
+.modal__content--light .phone-verify__status--success {
+  color: #2e7d4a;
+}
+
+.modal__content--light .phone-verify__status--error {
+  color: #c0392b;
+}
+
+.modal__content--light .checkout-summary {
+  background: #f5f0eb;
+  border: 1px solid #ebe3da;
+}
+
+.modal__content--light .checkout-summary__flavors {
+  color: #6b5c50;
+}
+
+.modal__content--light .checkout-summary__total {
+  border-top-color: #e5ddd4;
+  color: #1a1410;
+}
+
+.modal__content--light .btn--ghost {
+  color: #1a1410;
+  border-color: #d4c9bc;
+  background: #fff;
+}
+
+.modal__content--light .btn--ghost:hover {
+  background: #f5f0eb;
+  border-color: #c47a3a;
+  color: #1a1410;
+}
+
 .modal__note { color: var(--text-muted); margin-bottom: 24px; }
 
 .success-icon {
