@@ -2025,17 +2025,89 @@ body {
   text-align: center;
 }
 
+.box-builder__layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
 .box-builder__side {
+  order: 1;
   min-width: 0;
-  margin-bottom: 28px;
+  margin-bottom: 0;
 }
 
 .box-builder__preview {
+  order: 2;
   position: relative;
   width: 100%;
   max-width: 520px;
-  margin: 0 auto 20px;
+  margin: 0 auto;
   perspective: 920px;
+}
+
+@media (min-width: 969px) {
+  .box-builder__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 440px) 1fr;
+    gap: 36px;
+    align-items: start;
+  }
+
+  .box-builder__preview {
+    order: 0;
+    position: sticky;
+    top: 96px;
+    max-width: none;
+    margin: 0;
+  }
+
+  .box-builder__side {
+    order: 0;
+  }
+
+  .box-single-picker__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .flavor-pick-card {
+    padding: 10px 8px 8px;
+    gap: 4px;
+    border-radius: 12px;
+  }
+
+  .flavor-pick-card__photo {
+    height: 62px;
+  }
+
+  .flavor-pick-card__photo img {
+    height: 56px;
+  }
+
+  .flavor-pick-card__name {
+    font-size: 0.76rem;
+  }
+
+  .flavor-pick-card__qty {
+    font-size: 0.62rem;
+  }
+
+  .box-side-summary__item {
+    grid-template-columns: 30px 1fr auto;
+    gap: 10px;
+    padding: 8px 10px;
+  }
+
+  .box-side-summary__item img {
+    width: 30px;
+    height: 38px;
+  }
+
+  .box-side-summary__name {
+    font-size: 0.84rem;
+  }
 }
 
 .box-builder__preview-label {
