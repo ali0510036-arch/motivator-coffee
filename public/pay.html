@@ -187,19 +187,21 @@
     </div>
 
     <div class="pay-page__actions">
-      <button type="button" class="btn btn--primary btn--full" id="payOpenWeb">Открыть оплату на сайте банка</button>
+      <button type="button" class="btn btn--primary btn--full" id="payOpenApp">Открыть приложение банка</button>
+      <button type="button" class="btn btn--primary btn--full" id="payOpenWeb">Открыть сайт банка</button>
+      <button type="button" class="btn btn--ghost btn--full" id="payCopyPhone">Скопировать телефон</button>
+      <button type="button" class="btn btn--ghost btn--full" id="payCopyAmount">Скопировать сумму</button>
       <button type="button" class="btn btn--ghost btn--full" id="payCopyComment">Скопировать комментарий</button>
     </div>
 
     <p class="pay-page__hint">
-      Сначала откроется страница оплаты СБП с уже подставленными телефоном и суммой,
-      затем сайт или приложение вашего банка — как в Сбербанке.
-      Комментарий к заказу нужно вставить в поле «Сообщение».
+      Для Сбербанка откроется готовая форма с телефоном и суммой.
+      Для других банков — приложение или сайт вашего банка, данные для перевода уже на этой странице.
     </p>
 
     <a class="pay-page__back" href="/">← Вернуться в магазин</a>
   </main>
 
-  <script src="/js/pay.js?v=2"></script>
+  <script src="/js/pay.js?v=3"></script>
 </body>
 </html>

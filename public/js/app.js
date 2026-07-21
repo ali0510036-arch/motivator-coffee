@@ -276,12 +276,11 @@ function resolveBankTransferLink(bank, payment) {
 }
 
 async function selectPaymentBank(bank, payment) {
-  await copyText(payment.comment);
   closeBankPicker();
 
   const transferLink = resolveBankTransferLink(bank, payment);
   if (transferLink) {
-    showPayCopyStatus('Комментарий скопирован — открываем страницу оплаты…');
+    showPayCopyStatus('Открываем страницу оплаты…');
     window.location.href = transferLink;
     return;
   }
