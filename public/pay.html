@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оплата заказа — MOTIVATOR Coffee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css?v=42">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top, rgba(255, 159, 67, 0.12), transparent 35%),
+        var(--bg);
+    }
+
+    .pay-page {
+      width: min(100%, 520px);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 28px 24px 24px;
+    }
+
+    .pay-page__brand {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      margin-bottom: 6px;
+    }
+
+    .pay-page__title {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .pay-page__bank {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .pay-page__bank-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .pay-page__bank-name {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .pay-page__list {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .pay-page__row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pay-page__row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .pay-page__label {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+    }
+
+    .pay-page__value {
+      text-align: right;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .pay-page__amount {
+      color: var(--accent);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .pay-page__status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--accent-soft);
+      border: 1px solid var(--border-strong);
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+    }
+
+    .pay-page__spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 159, 67, 0.25);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: pay-spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pay-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .pay-page__actions {
+      display: grid;
+      gap: 10px;
+    }
+
+    .pay-page__hint {
+      margin-top: 14px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .pay-page__back {
+      display: inline-block;
+      margin-top: 18px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.92rem;
+    }
+
+    .pay-page__back:hover {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <main class="pay-page">
+    <p class="pay-page__brand">MOTIVATOR Coffee</p>
+    <h1 class="pay-page__title">Переход к оплате через СБП</h1>
+
+    <div class="pay-page__bank">
+      <img class="pay-page__bank-logo" id="payBankLogo" alt="" hidden>
+      <span class="pay-page__bank-name" id="payBankName">Ваш банк</span>
+    </div>
+
+    <dl class="pay-page__list">
+      <div class="pay-page__row">
+        <dt class="pay-page__label">Получатель</dt>
+        <dd class="pay-page__value" id="payRecipient">—</dd>
+      </div>
+      <div class="pay-page__row">
+        <dt class="pay-page__label">Телефон</dt>
+        <dd class="pay-page__value" id="payPhone">—</dd>
+      </div>
+      <div class="pay-page__row">
+        <dt class="pay-page__label">Сумма</dt>
+        <dd class="pay-page__value pay-page__amount" id="payAmount">—</dd>
+      </div>
+      <div class="pay-page__row">
+        <dt class="pay-page__label">Комментарий</dt>
+        <dd class="pay-page__value" id="payComment">—</dd>
+      </div>
+    </dl>
+
+    <div class="pay-page__status" id="payStatus">
+      <span class="pay-page__spinner" aria-hidden="true"></span>
+      <span id="payStatusText">Открываем сайт банка…</span>
+    </div>
+
+    <div class="pay-page__actions">
+      <button type="button" class="btn btn--primary btn--full" id="payOpenWeb">Открыть оплату на сайте банка</button>
+      <button type="button" class="btn btn--ghost btn--full" id="payCopyComment">Скопировать комментарий</button>
+    </div>
+
+    <p class="pay-page__hint">
+      Сначала откроется сайт вашего банка с уже подставленными телефоном и суммой.
+      Если приложение банка установлено, оно предложит продолжить там — как в Сбербанке.
+    </p>
+
+    <a class="pay-page__back" href="/">← Вернуться в магазин</a>
+  </main>
+
+  <script src="/js/pay.js?v=1"></script>
+</body>
+</html>

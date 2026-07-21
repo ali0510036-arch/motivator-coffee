@@ -34,28 +34,25 @@ function buildSbpLink(phone, amount) {
   return `https://www.sberbank.com/sms/pbpn?${params.toString()}`;
 }
 
-function buildBankTransferLink(bankId, phone, amount) {
+function buildPayPageUrl(bankId, phone, amount, comment) {
   const digits = normalizePhone(phone);
   if (!digits) return null;
 
-  const amountStr = Number(amount).toFixed(2);
   const normalizedId = bankId === '100000000005' ? '110000000005' : bankId;
-
-  if (normalizedId === '100000000111') {
-    return `https://www.sberbank.com/sms/pbpn?${new URLSearchParams({
-      requisiteNumber: digits,
-      amount: amountStr,
-    }).toString()}`;
-  }
-
-  return `https://t.tb.ru/c2c-qr-choose-bank?${new URLSearchParams({
-    requisiteNumber: `+${digits}`,
-    bankCode: normalizedId,
-    amount: amountStr,
-  }).toString()}`;
+  const params = new URLSearchParams({
+    bank: normalizedId,
+    phone: digits,
+    amount: Number(amount).toFixed(2),
+  });
+  if (comment) params.set('comment', comment);
+  return `/pay.html?${params.toString()}`;
 }
 
-function buildTransferLinks(phone, amount) {
+function buildBankTransferLink(bankId, phone, amount, comment) {
+  return buildPayPageUrl(bankId, phone, amount, comment);
+}
+
+function buildTransferLinks(phone, amount, comment) {
   const bankIds = [
     '100000000111',
     '100000000004',
@@ -69,7 +66,7 @@ function buildTransferLinks(phone, amount) {
   ];
   const links = {};
   for (const bankId of bankIds) {
-    links[bankId] = buildBankTransferLink(bankId, phone, amount);
+    links[bankId] = buildBankTransferLink(bankId, phone, amount, comment);
   }
   return links;
 }
@@ -87,8 +84,8 @@ function buildPaymentDetails(order) {
     amountFormatted: `${amount.toLocaleString('ru-RU')} ₽`,
     comment,
     sbpLink: buildSbpLink(phone, amount),
-    transferLinks: buildTransferLinks(phone, amount),
-    instruction: 'Выберите свой банк для перевода через СБП.',
+    transferLinks: buildTransferLinks(phone, amount, comment),
+    instruction: 'Выберите свой банк — откроется страница оплаты на сайте, затем приложение банка.',
   };
 }
 
@@ -98,6 +95,7 @@ module.exports = {
   getRecipientName,
   formatPhoneDisplay,
   buildSbpLink,
+  buildPayPageUrl,
   buildBankTransferLink,
   buildPaymentDetails,
 };

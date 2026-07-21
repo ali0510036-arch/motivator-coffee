@@ -136,31 +136,28 @@ function buildLocalPaymentDetails(order) {
     amount,
     amountFormatted: `${amount.toLocaleString('ru-RU')} ₽`,
     comment,
-    sbpLink: buildBankTransferLink('100000000111', phone, amount),
+    sbpLink: buildBankTransferLink('100000000111', phone, amount, comment),
     transferLinks: null,
-    instruction: 'Выберите свой банк для перевода через СБП.',
+    instruction: 'Выберите свой банк — откроется страница оплаты на сайте, затем приложение банка.',
   };
 }
 
-function buildBankTransferLink(bankId, phone, amount) {
+function buildPayPageUrl(bankId, phone, amount, comment) {
   const digits = String(phone || '').replace(/\D/g, '');
   if (!digits) return null;
 
-  const amountStr = Number(amount).toFixed(2);
   const normalizedId = bankId === '100000000005' ? '110000000005' : bankId;
+  const params = new URLSearchParams({
+    bank: normalizedId,
+    phone: digits,
+    amount: Number(amount).toFixed(2),
+  });
+  if (comment) params.set('comment', comment);
+  return `/pay.html?${params.toString()}`;
+}
 
-  if (normalizedId === '100000000111') {
-    return `https://www.sberbank.com/sms/pbpn?${new URLSearchParams({
-      requisiteNumber: digits,
-      amount: amountStr,
-    }).toString()}`;
-  }
-
-  return `https://t.tb.ru/c2c-qr-choose-bank?${new URLSearchParams({
-    requisiteNumber: `+${digits}`,
-    bankCode: normalizedId,
-    amount: amountStr,
-  }).toString()}`;
+function buildBankTransferLink(bankId, phone, amount, comment) {
+  return buildPayPageUrl(bankId, phone, amount, comment);
 }
 
 function normalizeBankList(banks) {
@@ -275,18 +272,7 @@ function resolveBankTransferLink(bank, payment) {
   const fromOrder = payment.transferLinks?.[bankId] || payment.transferLinks?.[bank.id];
   if (fromOrder) return fromOrder;
 
-  if (bankId === '100000000111' && payment.sbpLink) return payment.sbpLink;
-
-  return buildBankTransferLink(bankId, payment.phone, payment.amount);
-}
-
-function openTransferLink(url) {
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (isMobile) {
-    window.location.href = url;
-    return;
-  }
-  window.open(url, '_blank', 'noopener,noreferrer');
+  return buildPayPageUrl(bankId, payment.phone, payment.amount, payment.comment);
 }
 
 async function selectPaymentBank(bank, payment) {
@@ -295,8 +281,8 @@ async function selectPaymentBank(bank, payment) {
 
   const transferLink = resolveBankTransferLink(bank, payment);
   if (transferLink) {
-    showPayCopyStatus('Комментарий скопирован — вставьте его в поле «Сообщение» или «Назначение»');
-    openTransferLink(transferLink);
+    showPayCopyStatus('Комментарий скопирован — открываем страницу оплаты…');
+    window.location.href = transferLink;
     return;
   }
 
@@ -385,7 +371,7 @@ function ensurePaymentDetailsBlock() {
     </dl>
     <p class="payment-details__status" id="payCopyStatus" hidden></p>
     <button type="button" class="btn btn--primary btn--full" id="payChooseBank">Выбрать банк для перевода</button>
-    <p class="payment-details__hint">Выберите свой банк — откроется приложение для перевода по СБП.</p>
+    <p class="payment-details__hint">Выберите банк — откроется страница оплаты, затем сайт или приложение банка с подставленными данными.</p>
   `;
 
   const closeBtn = $('#successClose');
