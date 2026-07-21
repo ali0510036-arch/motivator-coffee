@@ -4,6 +4,8 @@ let flavors = [];
 let boxSize = 12;
 let boxPrice = 2200;
 let selection = {};
+let boxMode = 'assortment';
+let singleFlavorId = null;
 let cart = loadCart();
 
 const $ = (sel) => document.querySelector(sel);
@@ -46,10 +48,8 @@ async function init() {
   }
 
   resetSelection();
+  setBoxMode('assortment');
   renderFlavorsPreview();
-  renderPresetTabs();
-  renderBoxBuilder();
-  updatePackBox();
   updateCartUI();
   bindEvents();
 }
@@ -70,30 +70,91 @@ function renderFlavorsPreview() {
 }
 
 function renderBoxBuilder() {
-  $('#boxPrice').textContent = formatPrice(boxPrice);
-  $('#boxSize').textContent = boxSize;
+  const priceEl = $('#boxPrice');
+  if (priceEl) priceEl.textContent = formatPrice(boxPrice);
+  renderModePicker();
+  renderBuilderSide();
+}
 
-  $('#flavorGrid').innerHTML = flavors.map((f) => `
-    <article class="flavor-card ${selection[f.id] > 0 ? 'is-selected' : ''}" data-flavor-id="${f.id}" style="--flavor-color: ${f.color}">
-      <div class="flavor-card__photo-wrap" data-action="add" title="Добавить бутылку">
-        <img src="${f.image}" alt="${f.name}" class="flavor-card__photo" loading="lazy" onerror="this.closest('.flavor-card__photo-wrap').classList.add('flavor-card__photo-wrap--fallback')" style="--flavor-color:${f.color}">
-        ${selection[f.id] > 0 ? `<span class="flavor-card__badge">${selection[f.id]}</span>` : ''}
-      </div>
-      <div class="flavor-card__top">
-        <h3>${f.name}</h3>
-      </div>
-      <div class="flavor-card__body">
-        <p>${f.description}</p>
-        <div class="flavor-card__controls">
-          <button class="flavor-card__btn" data-action="minus" data-id="${f.id}" ${selection[f.id] === 0 ? 'disabled' : ''}>−</button>
-          <span class="flavor-card__qty" id="qty-${f.id}">${selection[f.id] || 0}</span>
-          <button class="flavor-card__btn" data-action="plus" data-id="${f.id}" ${getSelectedTotal() >= boxSize ? 'disabled' : ''}>+</button>
-        </div>
-      </div>
-    </article>
+function renderModePicker() {
+  const wrap = document.getElementById('boxModePicker');
+  if (!wrap) return;
+
+  const assortmentVisual = flavors.map((f) => `
+    <span class="box-mode-card__mini" style="--flavor-color:${f.color}" title="${f.name}">
+      <img src="${f.image}" alt="">
+      <span class="box-mode-card__mini-qty">×2</span>
+    </span>
   `).join('');
 
-  updateProgress();
+  const singleVisual = singleFlavorId
+    ? (() => {
+        const f = flavors.find((fl) => fl.id === singleFlavorId);
+        return f ? `<span class="box-mode-card__single-preview" style="--flavor-color:${f.color}"><img src="${f.image}" alt=""><span>×12</span></span>` : '<span class="box-mode-card__single-placeholder">6 вкусов</span>';
+      })()
+    : '<span class="box-mode-card__single-placeholder">6 вкусов</span>';
+
+  wrap.innerHTML = `
+    <button type="button" class="box-mode-card${boxMode === 'assortment' ? ' is-active' : ''}" data-mode="assortment">
+      <span class="box-mode-card__eyebrow">Рекомендуем</span>
+      <span class="box-mode-card__title">Ассорти</span>
+      <span class="box-mode-card__desc">Все 6 вкусов · по 2 бутылки</span>
+      <span class="box-mode-card__visual">${assortmentVisual}</span>
+    </button>
+    <button type="button" class="box-mode-card${boxMode === 'single' ? ' is-active' : ''}" data-mode="single">
+      <span class="box-mode-card__eyebrow">Моновкус</span>
+      <span class="box-mode-card__title">Один вкус</span>
+      <span class="box-mode-card__desc">12 бутылок одного вкуса</span>
+      <span class="box-mode-card__visual box-mode-card__visual--single">${singleVisual}</span>
+    </button>
+  `;
+}
+
+function renderBuilderSide() {
+  const side = document.getElementById('boxBuilderSide');
+  if (!side) return;
+
+  if (boxMode === 'assortment') {
+    side.innerHTML = `
+      <div class="box-side-summary">
+        <p class="box-side-summary__label">Состав ассорти</p>
+        <ul class="box-side-summary__list">
+          ${flavors.map((f) => `
+            <li class="box-side-summary__item" style="--flavor-color:${f.color}">
+              <img src="${f.image}" alt="">
+              <span class="box-side-summary__name">${f.name}</span>
+              <span class="box-side-summary__qty">×2</span>
+            </li>
+          `).join('')}
+        </ul>
+        <p class="box-side-summary__note">Идеально, чтобы попробовать всю линейку MOTIVATOR</p>
+      </div>
+    `;
+    return;
+  }
+
+  side.innerHTML = `
+    <div class="box-single-picker">
+      <p class="box-single-picker__label">Выберите вкус · 12 бутылок</p>
+      <div class="box-single-picker__grid">
+        ${flavors.map((f) => `
+          <button
+            type="button"
+            class="flavor-pick-card${singleFlavorId === f.id ? ' is-selected' : ''}"
+            data-flavor-id="${f.id}"
+            style="--flavor-color:${f.color}"
+            aria-pressed="${singleFlavorId === f.id}"
+          >
+            <span class="flavor-pick-card__photo">
+              <img src="${f.image}" alt="" loading="lazy">
+            </span>
+            <span class="flavor-pick-card__name">${f.name}</span>
+            <span class="flavor-pick-card__qty">12 шт</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
 }
 
 function getSlotFlavors() {
@@ -139,9 +200,15 @@ function updatePackBox() {
 
   const hint = document.getElementById('packHint');
   if (hint) {
-    hint.textContent = total === boxSize
-      ? 'Упаковка собрана — можно добавить в корзину'
-      : `Выберите ещё ${boxSize - total} бутылок`;
+    if (total === boxSize) {
+      hint.textContent = boxMode === 'assortment'
+        ? 'Ассорти собрано — можно добавить в корзину'
+        : 'Упаковка собрана — можно добавить в корзину';
+    } else if (boxMode === 'single') {
+      hint.textContent = 'Выберите вкус справа';
+    } else {
+      hint.textContent = 'Выберите тип упаковки';
+    }
     hint.classList.toggle('complete', total === boxSize);
   }
 
@@ -150,98 +217,52 @@ function updatePackBox() {
 
 function updateProgress() {
   const total = getSelectedTotal();
-  const remaining = boxSize - total;
-
-  $('#selectedCount').textContent = total;
-  $('#progressFill').style.width = `${(total / boxSize) * 100}%`;
-  $('#progressFill').classList.toggle('complete', total === boxSize);
+  const ready = total === boxSize;
 
   const addBtn = $('#addBoxBtn');
-  addBtn.disabled = total !== boxSize;
-  addBtn.textContent = total === boxSize
-    ? `Добавить упаковку в корзину — ${formatPrice(boxPrice)}`
-    : `Осталось выбрать: ${remaining} шт`;
-
-  flavors.forEach((f) => {
-    const minusBtn = document.querySelector(`[data-action="minus"][data-id="${f.id}"]`);
-    const plusBtn = document.querySelector(`[data-action="plus"][data-id="${f.id}"]`);
-    const qtyEl = document.getElementById(`qty-${f.id}`);
-    const flavorCard = qtyEl?.closest('.flavor-card');
-
-    if (qtyEl) qtyEl.textContent = selection[f.id] || 0;
-    if (minusBtn) minusBtn.disabled = !selection[f.id];
-    if (plusBtn) plusBtn.disabled = total >= boxSize;
-    if (flavorCard) {
-      flavorCard.classList.toggle('is-selected', selection[f.id] > 0);
-      const badge = flavorCard.querySelector('.flavor-card__badge');
-      if (selection[f.id] > 0) {
-        if (badge) badge.textContent = selection[f.id];
-        else {
-          const wrap = flavorCard.querySelector('.flavor-card__photo-wrap');
-          if (wrap) wrap.insertAdjacentHTML('beforeend', `<span class="flavor-card__badge">${selection[f.id]}</span>`);
-        }
-      } else if (badge) {
-        badge.remove();
-      }
-    }
-  });
+  if (addBtn) {
+    addBtn.disabled = !ready;
+    addBtn.textContent = ready
+      ? `Добавить упаковку в корзину — ${formatPrice(boxPrice)}`
+      : (boxMode === 'single' ? 'Выберите вкус для упаковки' : 'Соберите упаковку');
+  }
 
   updatePackBox();
-  renderPresetTabs();
+  renderModePicker();
+  renderBuilderSide();
 }
 
-function renderPresetTabs() {
-  const wrap = document.getElementById('boxPresets');
-  if (!wrap) return;
-
-  const active = detectActivePreset();
-
-  wrap.innerHTML = `
-    <button type="button" class="box-preset-btn${active === 'assortment' ? ' is-active' : ''}" data-preset="assortment">
-      Ассорти · по 2
-    </button>
-    ${flavors.map((f) => `
-      <button
-        type="button"
-        class="box-preset-btn${active === f.id ? ' is-active' : ''}"
-        data-preset="${f.id}"
-        style="--preset-color: ${f.color}"
-      >${f.name} · 12</button>
-    `).join('')}
-  `;
-}
-
-function detectActivePreset() {
-  const total = getSelectedTotal();
-  if (total !== boxSize) return null;
-
-  const filled = flavors.filter((f) => selection[f.id] > 0);
-  if (filled.length === 1 && selection[filled[0].id] === boxSize) {
-    return filled[0].id;
+function setBoxMode(mode) {
+  boxMode = mode;
+  if (mode === 'assortment') {
+    singleFlavorId = null;
+    applyAssortmentPreset();
+    return;
   }
-  if (filled.length === flavors.length && flavors.every((f) => selection[f.id] === 2)) {
-    return 'assortment';
-  }
-  return null;
+
+  resetSelection();
+  if (singleFlavorId) applyFlavorPreset(singleFlavorId);
+  else updateProgress();
 }
 
-function changeFlavor(id, delta) {
-  const total = getSelectedTotal();
-  if (delta > 0 && total >= boxSize) return;
-  if (delta < 0 && !selection[id]) return;
-
-  selection[id] = Math.max(0, (selection[id] || 0) + delta);
-  updateProgress();
+function selectSingleFlavor(id) {
+  if (!flavors.some((f) => f.id === id)) return;
+  boxMode = 'single';
+  singleFlavorId = id;
+  applyFlavorPreset(id);
 }
 
 function scrollToFlavorInBuilder(id) {
+  setBoxMode('single');
+  selectSingleFlavor(id);
+
   const catalog = document.getElementById('catalog');
   if (catalog) {
     catalog.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   window.setTimeout(() => {
-    const card = document.querySelector(`.flavor-card[data-flavor-id="${id}"]`);
+    const card = document.querySelector(`.flavor-pick-card[data-flavor-id="${id}"]`);
     if (!card) return;
     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
     card.classList.add('is-highlighted');
@@ -252,14 +273,14 @@ function scrollToFlavorInBuilder(id) {
 function applyAssortmentPreset() {
   resetSelection();
   flavors.forEach((f) => { selection[f.id] = 2; });
-  renderBoxBuilder();
+  updateProgress();
 }
 
 function applyFlavorPreset(id) {
   if (!flavors.some((f) => f.id === id)) return;
   resetSelection();
   selection[id] = boxSize;
-  renderBoxBuilder();
+  updateProgress();
 }
 
 function getCurrentBoxFlavors() {
@@ -298,8 +319,7 @@ function addBoxToCart() {
   }
 
   saveCart();
-  resetSelection();
-  renderBoxBuilder();
+  setBoxMode('assortment');
   if (window.pulseCartButton) window.pulseCartButton();
   openCart();
 }
@@ -431,11 +451,16 @@ function bindEvents() {
   $('#checkoutForm').addEventListener('submit', submitOrder);
   $('#addBoxBtn').addEventListener('click', addBoxToCart);
 
-  $('#boxPresets').addEventListener('click', (e) => {
-    const btn = e.target.closest('.box-preset-btn');
-    if (!btn) return;
-    if (btn.dataset.preset === 'assortment') applyAssortmentPreset();
-    else applyFlavorPreset(btn.dataset.preset);
+  $('#boxModePicker').addEventListener('click', (e) => {
+    const card = e.target.closest('.box-mode-card[data-mode]');
+    if (!card) return;
+    setBoxMode(card.dataset.mode);
+  });
+
+  $('#boxBuilderSide').addEventListener('click', (e) => {
+    const pick = e.target.closest('.flavor-pick-card[data-flavor-id]');
+    if (!pick) return;
+    selectSingleFlavor(pick.dataset.flavorId);
   });
 
   $('#flavorsPreview').addEventListener('click', (e) => {
@@ -446,20 +471,6 @@ function bindEvents() {
 
   $('#successClose').addEventListener('click', () => {
     $('#successModal').classList.remove('active');
-  });
-
-  $('#flavorGrid').addEventListener('click', (e) => {
-    const btn = e.target.closest('.flavor-card__btn');
-    if (btn) {
-      changeFlavor(btn.dataset.id, btn.dataset.action === 'plus' ? 1 : -1);
-      return;
-    }
-
-    const photoWrap = e.target.closest('.flavor-card__photo-wrap[data-action="add"]');
-    if (photoWrap) {
-      const card = photoWrap.closest('.flavor-card');
-      if (card) changeFlavor(card.dataset.flavorId, 1);
-    }
   });
 
   $('#cartItems').addEventListener('click', (e) => {

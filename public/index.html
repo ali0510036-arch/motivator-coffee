@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700;800&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=29">
+  <link rel="stylesheet" href="/css/style.css?v=30">
   <link rel="stylesheet" href="/css/themes.css?v=7">
   <link rel="stylesheet" href="/css/effects.css?v=4">
   <script>
@@ -311,7 +311,7 @@
       <div class="section-header reveal">
         <p class="section-eyebrow">Заказ</p>
         <h2 class="section-title">Соберите упаковку</h2>
-        <p class="section-subtitle">12 бутылок по 250 мл — выберите вкусы на свой выбор</p>
+        <p class="section-subtitle">12 бутылок по 250 мл — ассорти всех вкусов или один вкус на выбор</p>
       </div>
 
       <div class="box-builder reveal">
@@ -321,16 +321,9 @@
             <span class="box-builder__price-value" id="boxPrice">2 200 ₽</span>
             <span class="box-builder__price-note">12 бутылок × 250 ml</span>
           </div>
-          <div class="box-builder__progress-wrap">
-            <div class="box-builder__progress-text">
-              Выбрано <strong id="selectedCount">0</strong> из <span id="boxSize">12</span>
-            </div>
-            <div class="box-builder__progress-bar">
-              <div class="box-builder__progress-fill" id="progressFill"></div>
-            </div>
-          </div>
-          <div class="box-builder__presets" id="boxPresets" aria-label="Быстрый выбор упаковки"></div>
         </div>
+
+        <div class="box-mode-picker" id="boxModePicker" aria-label="Тип упаковки"></div>
 
         <div class="box-builder__layout">
           <div class="box-builder__preview">
@@ -342,10 +335,10 @@
                 <div class="pack-slot" data-i="8"></div><div class="pack-slot" data-i="9"></div><div class="pack-slot" data-i="10"></div><div class="pack-slot" data-i="11"></div>
               </div>
             </div>
-            <p class="box-builder__preview-hint" id="packHint">Выберите 12 бутылок</p>
+            <p class="box-builder__preview-hint" id="packHint">Выберите тип упаковки</p>
           </div>
 
-          <div class="box-builder__grid" id="flavorGrid"></div>
+          <div class="box-builder__side" id="boxBuilderSide"></div>
         </div>
 
         <div class="box-builder__footer">
@@ -540,7 +533,7 @@
     </div>
   </div>
 
-  <script src="/js/app.js?v=2"></script>
+  <script src="/js/app.js?v=3"></script>
   <script src="/js/themes.js"></script>
   <script src="/js/effects.js"></script>
 </body>
