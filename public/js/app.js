@@ -16,6 +16,8 @@ const PAYMENT_DEFAULTS = {
 };
 
 let paymentConfig = { ...PAYMENT_DEFAULTS };
+let currentPaymentInfo = null;
+let paymentBanks = [];
 let smsCooldownTimer = null;
 let cart = loadCart();
 
@@ -134,7 +136,7 @@ function buildLocalPaymentDetails(order) {
     amountFormatted: `${amount.toLocaleString('ru-RU')} ₽`,
     comment: `Заказ MOTIVATOR ${order.orderNumber}`,
     sbpLink: `https://www.sberbank.com/sms/pbpn?requisiteNumber=${phone}&amount=${amount.toFixed(2)}`,
-    instruction: 'Телефон и сумма подставятся в банке автоматически. Комментарий к заказу скопируется — вставьте его в поле «Сообщение».',
+    instruction: 'Выберите свой банк для перевода через СБП. Комментарий к заказу скопируется автоматически.',
   };
 }
 
@@ -160,7 +162,7 @@ function showPayCopyStatus(message) {
     status.id = 'payCopyStatus';
     status.className = 'payment-details__status';
     status.setAttribute('role', 'status');
-    const bankBtn = $('#payOpenBank');
+    const bankBtn = $('#payChooseBank');
     if (bankBtn?.parentElement) {
       bankBtn.parentElement.insertBefore(status, bankBtn);
     }
@@ -169,7 +171,99 @@ function showPayCopyStatus(message) {
   status.removeAttribute('hidden');
 }
 
+const FALLBACK_PAYMENT_BANKS = [
+  { id: '100000000111', name: 'Сбербанк', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000111.png', schema: 'bank100000000111', packageName: 'ru.sberbankmobile' },
+  { id: '100000000004', name: 'Т-Банк', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000004.png', schema: 'bank100000000004', packageName: 'com.idamob.tinkoff.android' },
+  { id: '100000000005', name: 'Банк ВТБ', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000005.png', schema: 'bank110000000005', packageName: 'ru.vtb24.mobilebanking.android' },
+  { id: '100000000008', name: 'АЛЬФА-БАНК', logo: 'https://qr.nspk.ru/proxyapp/logo/bank100000000008.png', schema: 'bank100000000008', packageName: 'ru.alfabank.mobile.android' },
+];
+
+async function ensurePaymentBanks() {
+  if (paymentBanks.length) return paymentBanks;
+  try {
+    const res = await fetch('/api/payment/banks');
+    const data = await res.json();
+    paymentBanks = data.banks?.length ? data.banks : FALLBACK_PAYMENT_BANKS;
+  } catch {
+    paymentBanks = FALLBACK_PAYMENT_BANKS;
+  }
+  return paymentBanks;
+}
+
+function closeBankPicker() {
+  const modal = $('#bankPickerModal');
+  if (modal) modal.classList.remove('active');
+  const search = $('#bankSearch');
+  if (search) search.value = '';
+}
+
+function renderBankPickerList(banks, query = '') {
+  const list = $('#bankPickerList');
+  if (!list) return;
+
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? banks.filter((bank) => bank.name.toLowerCase().includes(q))
+    : banks;
+
+  if (!filtered.length) {
+    list.innerHTML = '<p class="bank-picker__empty">Банк не найден</p>';
+    return;
+  }
+
+  list.innerHTML = filtered.map((bank) => `
+    <button type="button" class="bank-picker__item" data-bank-id="${bank.id}">
+      <img class="bank-picker__logo" src="${bank.logo || ''}" alt="" loading="lazy" onerror="this.hidden=true">
+      <span class="bank-picker__name">${bank.name}</span>
+    </button>
+  `).join('');
+
+  list.querySelectorAll('[data-bank-id]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const bank = banks.find((item) => item.id === btn.dataset.bankId);
+      if (bank && currentPaymentInfo) selectPaymentBank(bank, currentPaymentInfo);
+    });
+  });
+}
+
+async function openBankPicker(payment) {
+  currentPaymentInfo = payment;
+  const banks = await ensurePaymentBanks();
+  renderBankPickerList(banks);
+  $('#bankPickerModal')?.classList.add('active');
+  $('#bankSearch')?.focus();
+}
+
+async function selectPaymentBank(bank, payment) {
+  await copyText(payment.comment);
+  closeBankPicker();
+
+  if (bank.id === '100000000111') {
+    showPayCopyStatus('Комментарий скопирован — вставьте в поле «Сообщение» в Сбербанке');
+    window.open(payment.sbpLink, '_blank', 'noopener,noreferrer');
+    return;
+  }
+
+  showPayCopyStatus(
+    `Комментарий скопирован. В ${bank.name}: Платежи → Перевод по телефону → ${payment.phoneDisplay}, сумма ${payment.amountFormatted}`,
+  );
+
+  const schema = bank.schema;
+  if (!schema) return;
+
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const url = isAndroid && bank.packageName
+    ? `intent://#Intent;scheme=${schema};package=${bank.packageName};end`
+    : `${schema}://`;
+
+  window.setTimeout(() => {
+    window.location.href = url;
+  }, 350);
+}
+
 function bindPaymentActions(payment) {
+  currentPaymentInfo = payment;
+
   const commentCopy = $('#payCommentCopy');
   if (commentCopy) {
     commentCopy.onclick = () => copyText(payment.comment, commentCopy);
@@ -185,14 +279,11 @@ function bindPaymentActions(payment) {
     amountCopy.onclick = () => copyText(String(payment.amount), amountCopy);
   }
 
-  const bankBtn = $('#payOpenBank');
+  const bankBtn = $('#payChooseBank');
   if (bankBtn) {
-    bankBtn.href = payment.sbpLink;
-    bankBtn.onclick = async (e) => {
+    bankBtn.onclick = (e) => {
       e.preventDefault();
-      await copyText(payment.comment);
-      showPayCopyStatus('Комментарий скопирован — вставьте его в поле «Сообщение» в банке');
-      window.open(payment.sbpLink, '_blank', 'noopener,noreferrer');
+      openBankPicker(payment);
     };
   }
 }
@@ -237,8 +328,8 @@ function ensurePaymentDetailsBlock() {
       </div>
     </dl>
     <p class="payment-details__status" id="payCopyStatus" hidden></p>
-    <a class="btn btn--primary btn--full" id="payOpenBank" href="#" target="_blank" rel="noopener noreferrer">Перевести через СБП</a>
-    <p class="payment-details__hint">Телефон и сумма откроются в банке. Комментарий копируется автоматически — вставьте его в поле «Сообщение».</p>
+    <button type="button" class="btn btn--primary btn--full" id="payChooseBank">Выбрать банк для перевода</button>
+    <p class="payment-details__hint">Выберите свой банк — откроется приложение для перевода по СБП. Комментарий копируется автоматически.</p>
   `;
 
   const closeBtn = $('#successClose');
@@ -882,6 +973,16 @@ function bindEvents() {
   $('#successClose').addEventListener('click', () => {
     $('#successModal').classList.remove('active');
     hidePaymentInstructions();
+    closeBankPicker();
+  });
+
+  $('#bankPickerClose')?.addEventListener('click', closeBankPicker);
+  $('#bankSearch')?.addEventListener('input', async (e) => {
+    const banks = await ensurePaymentBanks();
+    renderBankPickerList(banks, e.target.value);
+  });
+  $('#bankPickerModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'bankPickerModal') closeBankPicker();
   });
 
   $('#cartItems').addEventListener('click', (e) => {

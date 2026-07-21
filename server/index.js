@@ -6,6 +6,7 @@ const { flavors, BOX_SIZE, BOX_PRICE } = require('./products');
 const db = require('./db');
 const sms = require('./sms');
 const payment = require('./payment');
+const sbpBanks = require('./sbp-banks');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -98,6 +99,15 @@ app.post('/api/sms/verify', (req, res) => {
     displayPhone: result.displayPhone,
     verificationToken: result.verificationToken,
   });
+});
+
+app.get('/api/payment/banks', async (_req, res) => {
+  try {
+    const banks = await sbpBanks.getPopularBanks();
+    res.json({ banks });
+  } catch {
+    res.status(500).json({ error: 'Не удалось загрузить список банков' });
+  }
 });
 
 app.get('/api/payment/status', (_req, res) => {

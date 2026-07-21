@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700;800&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=40">
+  <link rel="stylesheet" href="/css/style.css?v=41">
   <link rel="stylesheet" href="/css/themes.css?v=7">
   <link rel="stylesheet" href="/css/effects.css?v=4">
   <script>
@@ -570,14 +570,24 @@
           </div>
         </dl>
         <p class="payment-details__status" id="payCopyStatus" hidden></p>
-        <a class="btn btn--primary btn--full" id="payOpenBank" href="#" target="_blank" rel="noopener noreferrer">Перевести через СБП</a>
-        <p class="payment-details__hint">Телефон и сумма откроются в банке. Комментарий копируется автоматически — вставьте его в поле «Сообщение».</p>
+        <button type="button" class="btn btn--primary btn--full" id="payChooseBank">Выбрать банк для перевода</button>
+        <p class="payment-details__hint">Выберите свой банк — откроется приложение для перевода по СБП. Комментарий копируется автоматически.</p>
       </div>
       <button class="btn btn--primary" id="successClose">Отлично</button>
     </div>
   </div>
 
-  <script src="/js/app.js?v=11"></script>
+  <div class="modal" id="bankPickerModal">
+    <div class="modal__content modal__content--banks">
+      <button type="button" class="modal__close" id="bankPickerClose" aria-label="Закрыть">×</button>
+      <h2>Выберите банк</h2>
+      <p class="modal__note">Откроется приложение вашего банка. Комментарий к заказу уже скопирован.</p>
+      <input type="search" class="bank-picker__search" id="bankSearch" placeholder="Поиск банка..." autocomplete="off">
+      <div class="bank-picker" id="bankPickerList"></div>
+    </div>
+  </div>
+
+  <script src="/js/app.js?v=12"></script>
   <script src="/js/themes.js"></script>
   <script src="/js/effects.js"></script>
 </body>
