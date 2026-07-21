@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700;800&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=33">
+  <link rel="stylesheet" href="/css/style.css?v=34">
   <link rel="stylesheet" href="/css/themes.css?v=7">
   <link rel="stylesheet" href="/css/effects.css?v=4">
   <script>
@@ -504,7 +504,10 @@
         <div class="form-group form-group--phone">
           <label for="phone">Телефон *</label>
           <div class="phone-verify">
-            <input type="tel" id="phone" name="phone" required placeholder="+7 (989) 484-00-69" autocomplete="tel">
+            <div class="phone-field">
+              <span class="phone-field__prefix">+7</span>
+              <input type="tel" id="phone" name="phone" required inputmode="numeric" autocomplete="tel-national" placeholder="(900) 123-45-67" maxlength="18">
+            </div>
             <button type="button" class="btn btn--ghost phone-verify__send" id="sendSmsBtn">Получить код</button>
           </div>
           <div class="phone-verify__code" id="phoneCodeRow" hidden>
@@ -541,7 +544,7 @@
     </div>
   </div>
 
-  <script src="/js/app.js?v=4"></script>
+  <script src="/js/app.js?v=5"></script>
   <script src="/js/themes.js"></script>
   <script src="/js/effects.js"></script>
 </body>

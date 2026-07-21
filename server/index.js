@@ -65,7 +65,7 @@ app.post('/api/admin/login', (req, res) => {
 
 app.post('/api/sms/send', async (req, res) => {
   try {
-    const result = await sms.sendVerificationCode(req.body?.phone);
+    const result = await sms.sendVerificationCode(req.body?.phone, req.ip);
     if (!result.ok) {
       return res.status(400).json({ error: result.error });
     }

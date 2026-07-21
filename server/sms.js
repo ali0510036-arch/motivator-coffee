@@ -20,7 +20,7 @@ function normalizePhone(raw) {
 }
 
 function formatPhoneDisplay(phone) {
-  return `+${phone[0]} (${phone.slice(1, 4)}) ${phone.slice(4, 7)}-${phone.slice(7, 9)}-${phone.slice(9, 11)}`;
+  return `+7 (${phone.slice(1, 4)}) ${phone.slice(4, 7)}-${phone.slice(7, 9)}-${phone.slice(9, 11)}`;
 }
 
 function cleanupMaps() {
@@ -74,33 +74,68 @@ function generateCode() {
   return String(crypto.randomInt(1000, 10000));
 }
 
-async function sendSmsRu(phone, message) {
-  const apiId = process.env.SMSRU_API_ID;
-  if (!apiId) {
-    throw new Error('SMS не настроен на сервере');
+function parseSmsRuSendResponse(data, phone) {
+  if (!data || data.status !== 'OK') {
+    throw new Error(data?.status_text || 'Ошибка авторизации SMS.ru');
   }
 
-  const url = new URL('https://sms.ru/sms/send');
-  url.searchParams.set('api_id', apiId);
-  url.searchParams.set('to', phone);
-  url.searchParams.set('msg', message);
-  url.searchParams.set('json', '1');
+  const entry = data.sms?.[phone];
+  if (!entry) {
+    throw new Error('SMS.ru не вернул статус отправки');
+  }
 
-  const res = await fetch(url);
-  const data = await res.json();
-
-  if (data.status !== 'OK' && data.status_code !== 100) {
-    const err = data.status_text || data.status || 'Ошибка отправки SMS';
-    throw new Error(err);
+  if (entry.status !== 'OK' || entry.status_code !== 100) {
+    throw new Error(entry.status_text || `SMS не отправлено (код ${entry.status_code})`);
   }
 
   return data;
 }
 
-async function sendVerificationCode(rawPhone) {
+async function sendSmsRu(phone, message, clientIp) {
+  const apiId = process.env.SMSRU_API_ID;
+  if (!apiId) {
+    throw new Error('SMS не настроен на сервере (SMSRU_API_ID)');
+  }
+
+  const body = new URLSearchParams({
+    api_id: apiId,
+    to: phone,
+    msg: message,
+    json: '1',
+  });
+
+  const from = process.env.SMSRU_FROM?.trim();
+  if (from) body.set('from', from);
+
+  if (clientIp) {
+    const ip = String(clientIp).replace('::ffff:', '');
+    if (ip && ip !== '127.0.0.1' && ip !== '::1') {
+      body.set('ip', ip);
+    }
+  }
+
+  const res = await fetch('https://sms.ru/sms/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body,
+  });
+
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error('Некорректный ответ SMS.ru');
+  }
+
+  parseSmsRuSendResponse(data, phone);
+  return data;
+}
+
+async function sendVerificationCode(rawPhone, clientIp) {
   const phone = normalizePhone(rawPhone);
   if (!phone) {
-    return { ok: false, error: 'Введите корректный номер телефона РФ' };
+    return { ok: false, error: 'Введите номер из 10 цифр после +7' };
   }
 
   const gate = canSend(phone);
@@ -109,12 +144,17 @@ async function sendVerificationCode(rawPhone) {
   }
 
   const code = generateCode();
-  const message = `MOTIVATOR: код подтверждения ${code}. Никому не сообщайте.`;
+  const message = `MOTIVATOR: код ${code}. Никому не сообщайте.`;
 
   if (process.env.NODE_ENV === 'development' && !process.env.SMSRU_API_ID) {
     console.log(`[SMS dev] ${formatPhoneDisplay(phone)} -> ${code}`);
   } else {
-    await sendSmsRu(phone, message);
+    try {
+      await sendSmsRu(phone, message, clientIp);
+    } catch (err) {
+      console.error('[SMS.ru]', phone, err.message);
+      return { ok: false, error: err.message };
+    }
   }
 
   registerSend(phone);

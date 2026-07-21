@@ -30,6 +30,44 @@ function formatPrice(n) {
   return n.toLocaleString('ru-RU') + ' ₽';
 }
 
+function getPhoneDigits() {
+  const el = $('#phone');
+  if (!el) return '';
+  return el.value.replace(/\D/g, '').slice(0, 10);
+}
+
+function formatPhoneLocal(digits) {
+  const d = digits.replace(/\D/g, '').slice(0, 10);
+  if (!d.length) return '';
+  if (d.length <= 3) return `(${d}`;
+  if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+  if (d.length <= 8) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 8)}-${d.slice(8)}`;
+}
+
+function getFullPhone() {
+  const digits = getPhoneDigits();
+  return digits.length === 10 ? `+7${digits}` : '';
+}
+
+function bindPhoneInput() {
+  const input = $('#phone');
+  if (!input || input.dataset.bound) return;
+  input.dataset.bound = '1';
+
+  input.addEventListener('input', () => {
+    const formatted = formatPhoneLocal(input.value);
+    if (input.value !== formatted) input.value = formatted;
+
+    if (phoneVerified || phoneVerificationToken) {
+      phoneVerified = false;
+      phoneVerificationToken = null;
+      input.readOnly = false;
+      updateSubmitButtonState();
+    }
+  });
+}
+
 function getSelectedTotal() {
   return Object.values(selection).reduce((sum, qty) => sum + qty, 0);
 }
@@ -55,6 +93,7 @@ async function init() {
   renderFlavorsPreview();
   updateCartUI();
   bindEvents();
+  bindPhoneInput();
 }
 
 function renderFlavorsPreview() {
@@ -442,14 +481,14 @@ function startSmsCooldown(seconds) {
 }
 
 async function sendPhoneCode() {
-  const phone = $('#phone')?.value?.trim();
-  if (!phone) {
-    setPhoneVerifyStatus('Введите номер телефона', 'error');
+  const fullPhone = getFullPhone();
+  if (!fullPhone) {
+    setPhoneVerifyStatus('Введите 10 цифр номера после +7', 'error');
     return;
   }
 
   resetPhoneVerification();
-  $('#phone').value = phone;
+  $('#phone').value = formatPhoneLocal(getPhoneDigits());
 
   const sendBtn = $('#sendSmsBtn');
   if (sendBtn) {
@@ -461,7 +500,7 @@ async function sendPhoneCode() {
     const res = await fetch('/api/sms/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone }),
+      body: JSON.stringify({ phone: fullPhone }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Ошибка отправки');
@@ -480,10 +519,10 @@ async function sendPhoneCode() {
 }
 
 async function verifyPhoneCode() {
-  const phone = $('#phone')?.value?.trim();
+  const fullPhone = getFullPhone();
   const code = $('#phoneCode')?.value?.trim();
 
-  if (!phone || !code) {
+  if (!fullPhone || !code) {
     setPhoneVerifyStatus('Введите номер и код из SMS', 'error');
     return;
   }
@@ -498,7 +537,7 @@ async function verifyPhoneCode() {
     const res = await fetch('/api/sms/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, code }),
+      body: JSON.stringify({ phone: fullPhone, code }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Неверный код');
@@ -562,7 +601,7 @@ async function submitOrder(e) {
 
   const data = {
     customerName: $('#name').value,
-    customerPhone: $('#phone').value,
+    customerPhone: getFullPhone(),
     customerEmail: $('#email').value,
     customerAddress: $('#address').value,
     customerComment: $('#comment').value,
@@ -604,14 +643,7 @@ function bindEvents() {
   $('#checkoutForm').addEventListener('submit', submitOrder);
   $('#sendSmsBtn').addEventListener('click', sendPhoneCode);
   $('#verifySmsBtn').addEventListener('click', verifyPhoneCode);
-  $('#phone').addEventListener('input', () => {
-    if (phoneVerified || phoneVerificationToken) {
-      phoneVerified = false;
-      phoneVerificationToken = null;
-      $('#phone').readOnly = false;
-      updateSubmitButtonState();
-    }
-  });
+  bindPhoneInput();
   $('#phoneCode').addEventListener('input', (e) => {
     e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
     if (e.target.value.length === 4) verifyPhoneCode();
