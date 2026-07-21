@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700;800&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=30">
+  <link rel="stylesheet" href="/css/style.css?v=31">
   <link rel="stylesheet" href="/css/themes.css?v=7">
   <link rel="stylesheet" href="/css/effects.css?v=4">
   <script>
@@ -325,20 +325,18 @@
 
         <div class="box-mode-picker" id="boxModePicker" aria-label="Тип упаковки"></div>
 
-        <div class="box-builder__layout">
-          <div class="box-builder__preview">
-            <p class="box-builder__preview-label">Ваша упаковка</p>
-            <div class="pack-box" id="packBox" aria-label="Содержимое упаковки">
-              <div class="pack-box__grid">
-                <div class="pack-slot" data-i="0"></div><div class="pack-slot" data-i="1"></div><div class="pack-slot" data-i="2"></div><div class="pack-slot" data-i="3"></div>
-                <div class="pack-slot" data-i="4"></div><div class="pack-slot" data-i="5"></div><div class="pack-slot" data-i="6"></div><div class="pack-slot" data-i="7"></div>
-                <div class="pack-slot" data-i="8"></div><div class="pack-slot" data-i="9"></div><div class="pack-slot" data-i="10"></div><div class="pack-slot" data-i="11"></div>
-              </div>
-            </div>
-            <p class="box-builder__preview-hint" id="packHint">Выберите тип упаковки</p>
-          </div>
+        <div class="box-builder__side" id="boxBuilderSide"></div>
 
-          <div class="box-builder__side" id="boxBuilderSide"></div>
+        <div class="box-builder__preview">
+          <p class="box-builder__preview-label">Ваша упаковка</p>
+          <div class="pack-box" id="packBox" aria-label="Содержимое упаковки">
+            <div class="pack-box__grid">
+              <div class="pack-slot" data-i="0"></div><div class="pack-slot" data-i="1"></div><div class="pack-slot" data-i="2"></div><div class="pack-slot" data-i="3"></div>
+              <div class="pack-slot" data-i="4"></div><div class="pack-slot" data-i="5"></div><div class="pack-slot" data-i="6"></div><div class="pack-slot" data-i="7"></div>
+              <div class="pack-slot" data-i="8"></div><div class="pack-slot" data-i="9"></div><div class="pack-slot" data-i="10"></div><div class="pack-slot" data-i="11"></div>
+            </div>
+          </div>
+          <p class="box-builder__preview-hint" id="packHint">Выберите тип упаковки</p>
         </div>
 
         <div class="box-builder__footer">
