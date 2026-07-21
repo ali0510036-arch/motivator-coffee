@@ -571,7 +571,7 @@
         </dl>
         <p class="payment-details__status" id="payCopyStatus" hidden></p>
         <button type="button" class="btn btn--primary btn--full" id="payChooseBank">Выбрать банк для перевода</button>
-        <p class="payment-details__hint">Выберите свой банк — откроется приложение для перевода по СБП. Комментарий копируется автоматически.</p>
+        <p class="payment-details__hint">Выберите свой банк — откроется приложение для перевода по СБП.</p>
       </div>
       <button class="btn btn--primary" id="successClose">Отлично</button>
     </div>
@@ -581,13 +581,13 @@
     <div class="modal__content modal__content--banks">
       <button type="button" class="modal__close" id="bankPickerClose" aria-label="Закрыть">×</button>
       <h2>Выберите банк</h2>
-      <p class="modal__note">Откроется приложение вашего банка. Комментарий к заказу уже скопирован.</p>
+      <p class="modal__note">Комментарий к заказу скопируется при выборе банка.</p>
       <input type="search" class="bank-picker__search" id="bankSearch" placeholder="Поиск банка..." autocomplete="off">
       <div class="bank-picker" id="bankPickerList"></div>
     </div>
   </div>
 
-  <script src="/js/app.js?v=12"></script>
+  <script src="/js/app.js?v=13"></script>
   <script src="/js/themes.js"></script>
   <script src="/js/effects.js"></script>
 </body>

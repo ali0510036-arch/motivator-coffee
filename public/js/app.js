@@ -136,7 +136,7 @@ function buildLocalPaymentDetails(order) {
     amountFormatted: `${amount.toLocaleString('ru-RU')} ₽`,
     comment: `Заказ MOTIVATOR ${order.orderNumber}`,
     sbpLink: `https://www.sberbank.com/sms/pbpn?requisiteNumber=${phone}&amount=${amount.toFixed(2)}`,
-    instruction: 'Выберите свой банк для перевода через СБП. Комментарий к заказу скопируется автоматически.',
+    instruction: 'Выберите свой банк для перевода через СБП.',
   };
 }
 
@@ -329,7 +329,7 @@ function ensurePaymentDetailsBlock() {
     </dl>
     <p class="payment-details__status" id="payCopyStatus" hidden></p>
     <button type="button" class="btn btn--primary btn--full" id="payChooseBank">Выбрать банк для перевода</button>
-    <p class="payment-details__hint">Выберите свой банк — откроется приложение для перевода по СБП. Комментарий копируется автоматически.</p>
+    <p class="payment-details__hint">Выберите свой банк — откроется приложение для перевода по СБП.</p>
   `;
 
   const closeBtn = $('#successClose');
@@ -353,11 +353,11 @@ function showPaymentInstructions(payment, orderNumber) {
     bindPaymentActions(payment);
     details.removeAttribute('hidden');
 
-    copyText(payment.comment).then((copied) => {
-      if (copied) {
-        showPayCopyStatus('Комментарий скопирован — вставьте его в поле «Сообщение» в банке');
-      }
-    });
+    const status = $('#payCopyStatus');
+    if (status) {
+      status.textContent = '';
+      status.setAttribute('hidden', '');
+    }
   }
 
   $('#successModal').classList.add('active');
