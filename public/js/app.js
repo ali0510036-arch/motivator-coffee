@@ -9,6 +9,13 @@ let singleFlavorId = null;
 let phoneVerificationToken = null;
 let phoneVerified = false;
 let smsVerificationEnabled = false;
+const PAYMENT_DEFAULTS = {
+  phone: '79894840069',
+  phoneDisplay: '+7 (989) 484-00-69',
+  recipientName: 'Магомедов Халил Умарасхабович',
+};
+
+let paymentConfig = { ...PAYMENT_DEFAULTS };
 let smsCooldownTimer = null;
 let cart = loadCart();
 
@@ -96,6 +103,134 @@ async function init() {
   bindEvents();
   bindPhoneInput();
   loadSmsStatus();
+  loadPaymentStatus();
+}
+
+async function loadPaymentStatus() {
+  try {
+    const res = await fetch('/api/payment/status');
+    const data = await res.json();
+    paymentConfig = {
+      phone: data.phone || PAYMENT_DEFAULTS.phone,
+      phoneDisplay: data.phoneDisplay || PAYMENT_DEFAULTS.phoneDisplay,
+      recipientName: data.recipientName || PAYMENT_DEFAULTS.recipientName,
+    };
+  } catch {
+    paymentConfig = { ...PAYMENT_DEFAULTS };
+  }
+}
+
+function buildLocalPaymentDetails(order) {
+  const phone = paymentConfig.phone || PAYMENT_DEFAULTS.phone;
+  const recipientName = paymentConfig.recipientName || PAYMENT_DEFAULTS.recipientName;
+  const phoneDisplay = paymentConfig.phoneDisplay || PAYMENT_DEFAULTS.phoneDisplay;
+  const amount = Number(order.total);
+
+  return {
+    recipientName,
+    phone,
+    phoneDisplay,
+    amount,
+    amountFormatted: `${amount.toLocaleString('ru-RU')} ₽`,
+    comment: `Заказ MOTIVATOR ${order.orderNumber}`,
+    sbpLink: `https://www.sberbank.com/sms/pbpn?requisiteNumber=${phone}&amount=${amount.toFixed(2)}`,
+    instruction: 'Переведите сумму по номеру телефона через СБП. В комментарии укажите номер заказа.',
+  };
+}
+
+async function copyText(text, button) {
+  try {
+    await navigator.clipboard.writeText(text);
+    if (button) {
+      const prev = button.textContent;
+      button.textContent = 'Скопировано';
+      window.setTimeout(() => { button.textContent = prev; }, 1500);
+    }
+  } catch {
+    window.prompt('Скопируйте:', text);
+  }
+}
+
+function ensurePaymentDetailsBlock() {
+  let details = $('#paymentDetails');
+  if (details) return details;
+
+  const modal = $('#successModal')?.querySelector('.modal__content');
+  if (!modal) return null;
+
+  details = document.createElement('div');
+  details.className = 'payment-details';
+  details.id = 'paymentDetails';
+  details.innerHTML = `
+    <p class="payment-details__title">Реквизиты для оплаты</p>
+    <dl class="payment-details__list">
+      <div class="payment-details__row">
+        <dt>Получатель</dt>
+        <dd id="payRecipient"></dd>
+      </div>
+      <div class="payment-details__row">
+        <dt>Телефон</dt>
+        <dd>
+          <span id="payPhone"></span>
+          <button type="button" class="payment-details__copy" id="payPhoneCopy">Копировать</button>
+        </dd>
+      </div>
+      <div class="payment-details__row">
+        <dt>Сумма</dt>
+        <dd>
+          <span id="payAmount"></span>
+          <button type="button" class="payment-details__copy" id="payAmountCopy">Копировать</button>
+        </dd>
+      </div>
+      <div class="payment-details__row">
+        <dt>Комментарий</dt>
+        <dd id="payComment"></dd>
+      </div>
+    </dl>
+    <a class="btn btn--primary btn--full" id="payOpenBank" href="#" target="_blank" rel="noopener noreferrer">Перевести через СБП</a>
+    <p class="payment-details__hint">Можно перевести из любого банка по номеру телефона. Укажите номер заказа в комментарии.</p>
+  `;
+
+  const closeBtn = $('#successClose');
+  if (closeBtn) modal.insertBefore(details, closeBtn);
+  else modal.appendChild(details);
+
+  return details;
+}
+
+function showPaymentInstructions(payment, orderNumber) {
+  $('#orderNumber').textContent = orderNumber;
+  $('#successNote').textContent = payment.instruction;
+
+  const details = ensurePaymentDetailsBlock();
+  if (details) {
+    $('#payRecipient').textContent = payment.recipientName;
+    $('#payPhone').textContent = payment.phoneDisplay;
+    $('#payAmount').textContent = payment.amountFormatted;
+    $('#payComment').textContent = payment.comment;
+
+    const bankBtn = $('#payOpenBank');
+    if (bankBtn) bankBtn.href = payment.sbpLink;
+
+    const phoneCopy = $('#payPhoneCopy');
+    if (phoneCopy) {
+      phoneCopy.onclick = () => copyText(payment.phone, phoneCopy);
+    }
+
+    const amountCopy = $('#payAmountCopy');
+    if (amountCopy) {
+      amountCopy.onclick = () => copyText(String(payment.amount), amountCopy);
+    }
+
+    details.removeAttribute('hidden');
+  }
+
+  $('#successModal').classList.add('active');
+}
+
+function hidePaymentInstructions() {
+  const details = $('#paymentDetails');
+  if (details) details.setAttribute('hidden', '');
 }
 
 function renderFlavorsPreview() {
@@ -652,11 +787,12 @@ async function submitOrder(e) {
 
     closeCheckout();
     resetPhoneVerification();
-    $('#orderNumber').textContent = result.order.orderNumber;
-    $('#successModal').classList.add('active');
     $('#checkoutForm').reset();
     cart = [];
     saveCart();
+
+    const paymentInfo = result.payment || buildLocalPaymentDetails(result.order);
+    showPaymentInstructions(paymentInfo, result.order.orderNumber);
   } catch (err) {
     alert(err.message || 'Ошибка при оформлении заказа');
   } finally {
@@ -701,6 +837,7 @@ function bindEvents() {
 
   $('#successClose').addEventListener('click', () => {
     $('#successModal').classList.remove('active');
+    hidePaymentInstructions();
   });
 
   $('#cartItems').addEventListener('click', (e) => {

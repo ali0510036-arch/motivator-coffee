@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700;800&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=36">
+  <link rel="stylesheet" href="/css/style.css?v=39">
   <link rel="stylesheet" href="/css/themes.css?v=7">
   <link rel="stylesheet" href="/css/effects.css?v=4">
   <script>
@@ -539,12 +539,41 @@
       <div class="success-icon">✓</div>
       <h2>Заказ оформлен</h2>
       <p>Номер заказа: <strong id="orderNumber"></strong></p>
-      <p class="modal__note">Мы свяжемся с вами для подтверждения.</p>
+      <p class="modal__note" id="successNote">Переведите оплату по номеру телефона через СБП.</p>
+      <div class="payment-details" id="paymentDetails" hidden>
+        <p class="payment-details__title">Реквизиты для оплаты</p>
+        <dl class="payment-details__list">
+          <div class="payment-details__row">
+            <dt>Получатель</dt>
+            <dd id="payRecipient"></dd>
+          </div>
+          <div class="payment-details__row">
+            <dt>Телефон</dt>
+            <dd>
+              <span id="payPhone"></span>
+              <button type="button" class="payment-details__copy" id="payPhoneCopy" aria-label="Скопировать телефон">Копировать</button>
+            </dd>
+          </div>
+          <div class="payment-details__row">
+            <dt>Сумма</dt>
+            <dd>
+              <span id="payAmount"></span>
+              <button type="button" class="payment-details__copy" id="payAmountCopy" aria-label="Скопировать сумму">Копировать</button>
+            </dd>
+          </div>
+          <div class="payment-details__row">
+            <dt>Комментарий</dt>
+            <dd id="payComment"></dd>
+          </div>
+        </dl>
+        <a class="btn btn--primary btn--full" id="payOpenBank" href="#" target="_blank" rel="noopener noreferrer">Перевести через СБП</a>
+        <p class="payment-details__hint">Можно перевести из любого банка по номеру телефона. Укажите номер заказа в комментарии.</p>
+      </div>
       <button class="btn btn--primary" id="successClose">Отлично</button>
     </div>
   </div>
 
-  <script src="/js/app.js?v=6"></script>
+  <script src="/js/app.js?v=10"></script>
   <script src="/js/themes.js"></script>
   <script src="/js/effects.js"></script>
 </body>

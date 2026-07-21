@@ -31,7 +31,8 @@ function createOrder(data) {
     customerComment: data.customerComment || '',
     items: data.items,
     total: data.total,
-    status: 'new',
+    status: data.status || 'new',
+    paymentStatus: data.paymentStatus || 'none',
     createdAt: new Date().toISOString(),
   };
   orders.unshift(order);
@@ -56,10 +57,42 @@ function updateOrderStatus(id, status) {
   return orders[index];
 }
 
+function markOrderPaidByNumber(orderNumber) {
+  const orders = readOrders();
+  const index = orders.findIndex((o) => o.orderNumber === orderNumber);
+  if (index === -1) return null;
+  orders[index].paymentStatus = 'paid';
+  if (orders[index].status === 'awaiting_payment') {
+    orders[index].status = 'new';
+  }
+  writeOrders(orders);
+  return orders[index];
+}
+
+function updateOrderPaymentStatus(id, paymentStatus) {
+  const orders = readOrders();
+  const index = orders.findIndex((o) => o.id === id);
+  if (index === -1) return null;
+  orders[index].paymentStatus = paymentStatus;
+  if (paymentStatus === 'paid' && orders[index].status === 'awaiting_payment') {
+    orders[index].status = 'new';
+  }
+  writeOrders(orders);
+  return orders[index];
+}
+
 function generateOrderNumber() {
   const prefix = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const count = readOrders().filter((o) => o.orderNumber.startsWith(prefix)).length;
   return `${prefix}-${String(count + 1).padStart(4, '0')}`;
 }
 
-module.exports = { createOrder, getOrderById, getAllOrders, updateOrderStatus, generateOrderNumber };
+module.exports = {
+  createOrder,
+  getOrderById,
+  getAllOrders,
+  updateOrderStatus,
+  updateOrderPaymentStatus,
+  markOrderPaidByNumber,
+  generateOrderNumber,
+};

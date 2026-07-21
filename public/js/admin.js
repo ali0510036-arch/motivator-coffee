@@ -7,11 +7,18 @@ const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
 const STATUS_LABELS = {
+  awaiting_payment: 'Ждёт оплаты',
   new: 'Новый',
   processing: 'В обработке',
   shipped: 'Отправлен',
   completed: 'Завершён',
   cancelled: 'Отменён',
+};
+
+const PAYMENT_LABELS = {
+  pending: 'Не оплачен',
+  paid: 'Оплачен',
+  none: '—',
 };
 
 function formatPrice(n) {
@@ -145,7 +152,8 @@ function renderOrders() {
           <span class="order-card__number">#${o.orderNumber}</span>
           <span class="order-card__date">${formatDate(o.createdAt)}</span>
         </div>
-        <span class="order-card__status status-${o.status}">${STATUS_LABELS[o.status]}</span>
+        <span class="order-card__status status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
+        ${o.paymentStatus && o.paymentStatus !== 'none' ? `<span class="order-card__payment status-payment-${o.paymentStatus}">${PAYMENT_LABELS[o.paymentStatus] || o.paymentStatus}</span>` : ''}
       </div>
       <div class="order-card__customer">
         <div class="order-card__field">
@@ -179,6 +187,7 @@ function renderOrders() {
       </div>
       <div class="order-card__total">Итого: ${formatPrice(o.total)}</div>
       <div class="order-card__actions">
+        ${o.paymentStatus === 'pending' ? `<button type="button" class="btn btn--ghost btn--sm mark-paid-btn" data-id="${o.id}">Отметить оплаченным</button>` : ''}
         <select data-id="${o.id}" class="status-select">
           ${Object.entries(STATUS_LABELS).map(([val, label]) =>
             `<option value="${val}" ${o.status === val ? 'selected' : ''}>${label}</option>`
@@ -187,6 +196,18 @@ function renderOrders() {
       </div>
     </div>
   `).join('');
+}
+
+async function markOrderPaid(orderId) {
+  try {
+    await apiFetch(`/api/orders/${orderId}/payment`, {
+      method: 'PATCH',
+      body: JSON.stringify({ paymentStatus: 'paid' }),
+    });
+    await loadOrders();
+  } catch {
+    alert('Ошибка обновления оплаты');
+  }
 }
 
 async function updateStatus(orderId, status) {
@@ -239,6 +260,13 @@ function bindEvents() {
       currentFilter = btn.dataset.status;
       renderOrders();
     });
+  });
+
+  $('#ordersList').addEventListener('click', (e) => {
+    if (e.target.classList.contains('mark-paid-btn')) {
+      markOrderPaid(Number(e.target.dataset.id));
+      return;
+    }
   });
 
   $('#ordersList').addEventListener('change', (e) => {

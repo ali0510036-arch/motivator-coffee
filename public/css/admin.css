@@ -206,6 +206,31 @@
 .status-shipped { background: rgba(108, 92, 231, 0.15); color: #9B8FE8; }
 .status-completed { background: rgba(46, 125, 50, 0.15); color: #66BB6A; }
 .status-cancelled { background: rgba(198, 40, 40, 0.15); color: #EF5350; }
+.status-awaiting_payment { background: rgba(255, 193, 7, 0.15); color: #FFC107; }
+
+.order-card__payment {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.status-payment-pending { background: rgba(255, 193, 7, 0.15); color: #FFC107; }
+.status-payment-paid { background: rgba(46, 125, 50, 0.15); color: #66BB6A; }
+
+.order-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.mark-paid-btn {
+  padding: 8px 12px;
+  font-size: 0.78rem;
+}
 
 .order-card__customer {
   display: grid;

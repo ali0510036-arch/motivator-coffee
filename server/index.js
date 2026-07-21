@@ -5,6 +5,7 @@ const cors = require('cors');
 const { flavors, BOX_SIZE, BOX_PRICE } = require('./products');
 const db = require('./db');
 const sms = require('./sms');
+const payment = require('./payment');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -99,6 +100,27 @@ app.post('/api/sms/verify', (req, res) => {
   });
 });
 
+app.get('/api/payment/status', (_req, res) => {
+  const phone = payment.getPaymentPhone();
+  res.json({
+    enabled: payment.isPaymentEnabled(),
+    provider: 'sbp_phone',
+    phone,
+    phoneDisplay: payment.formatPhoneDisplay(phone),
+    recipientName: payment.getRecipientName(),
+  });
+});
+
+app.patch('/api/orders/:id/payment', requireAdmin, (req, res) => {
+  const { paymentStatus } = req.body;
+  if (!['pending', 'paid', 'none'].includes(paymentStatus)) {
+    return res.status(400).json({ error: 'Неверный статус оплаты' });
+  }
+  const order = db.updateOrderPaymentStatus(Number(req.params.id), paymentStatus);
+  if (!order) return res.status(404).json({ error: 'Заказ не найден' });
+  res.json(order);
+});
+
 app.post('/api/orders', (req, res) => {
   const {
     customerName,
@@ -126,7 +148,6 @@ app.post('/api/orders', (req, res) => {
   }
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
   const normalized = sms.normalizePhone(customerPhone.trim());
   const order = db.createOrder({
     orderNumber: db.generateOrderNumber(),
@@ -137,9 +158,17 @@ app.post('/api/orders', (req, res) => {
     customerComment: customerComment?.trim() || '',
     items,
     total,
+    status: 'awaiting_payment',
+    paymentStatus: 'pending',
   });
 
-  res.status(201).json({ success: true, order });
+  const paymentDetails = payment.buildPaymentDetails(order);
+
+  res.status(201).json({
+    success: true,
+    order,
+    payment: paymentDetails,
+  });
 });
 
 app.get('/api/orders', requireAdmin, (_req, res) => {
@@ -148,7 +177,7 @@ app.get('/api/orders', requireAdmin, (_req, res) => {
 
 app.patch('/api/orders/:id/status', requireAdmin, (req, res) => {
   const { status } = req.body;
-  const valid = ['new', 'processing', 'shipped', 'completed', 'cancelled'];
+  const valid = ['new', 'awaiting_payment', 'processing', 'shipped', 'completed', 'cancelled'];
   if (!valid.includes(status)) {
     return res.status(400).json({ error: 'Неверный статус' });
   }
