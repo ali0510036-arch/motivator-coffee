@@ -1,0 +1,270 @@
+.admin-body {
+  background: #0A0908;
+  min-height: 100vh;
+  font-family: 'Outfit', system-ui, sans-serif;
+  color: #F2EBE3;
+}
+
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.admin-login__card {
+  background: #161412;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 48px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.admin-login__card h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.admin-login__card p {
+  color: #8E8680;
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+}
+
+.admin-login__card input {
+  width: 100%;
+  padding: 12px 16px;
+  background: #0A0908;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #F2EBE3;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+
+.admin-login__card input:focus {
+  outline: none;
+  border-color: #FF5722;
+}
+
+.admin-login__hint {
+  margin-top: 16px;
+  font-size: 0.8rem !important;
+  color: #5C5650 !important;
+}
+
+.admin-header {
+  background: rgba(10, 9, 8, 0.92);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+}
+
+.admin-header__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-header h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.5rem;
+}
+
+.admin-header__actions { display: flex; gap: 12px; }
+
+.admin-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: #161412;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.stat-card__value {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #FF5722;
+}
+
+.stat-card__label {
+  font-size: 0.85rem;
+  color: #8E8680;
+  margin-top: 4px;
+}
+
+.admin-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: #161412;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #8E8680;
+  padding: 8px 18px;
+  border-radius: 100px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+  background: #FF5722;
+  color: #0A0908;
+  border-color: #FF5722;
+}
+
+.order-card {
+  background: #161412;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.2s;
+}
+
+.order-card:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4); }
+
+.order-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.order-card__number {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.order-card__date {
+  color: #8E8680;
+  font-size: 0.85rem;
+}
+
+.order-card__status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-new { background: rgba(255, 87, 34, 0.15); color: #FF5722; }
+.status-processing { background: rgba(255, 107, 0, 0.15); color: #FF8C00; }
+.status-shipped { background: rgba(108, 92, 231, 0.15); color: #9B8FE8; }
+.status-completed { background: rgba(46, 125, 50, 0.15); color: #66BB6A; }
+.status-cancelled { background: rgba(198, 40, 40, 0.15); color: #EF5350; }
+
+.order-card__customer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.order-card__field label {
+  display: block;
+  font-size: 0.75rem;
+  color: #5C5650;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.order-card__field p { font-size: 0.95rem; }
+
+.order-card__items {
+  background: #0A0908;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.order-card__item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.9rem;
+  color: #8E8680;
+}
+
+.order-card__item--box {
+  flex-direction: column;
+  align-items: flex-start !important;
+  gap: 4px;
+}
+
+.order-card__item--box > span:last-child {
+  align-self: flex-end;
+  font-weight: 600;
+  color: #F2EBE3;
+}
+
+.order-card__flavors {
+  font-size: 0.82rem;
+  color: #5C5650;
+  margin-top: 4px;
+}
+
+.order-card__total {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #FF5722;
+  margin-bottom: 12px;
+}
+
+.order-card__actions select {
+  padding: 8px 12px;
+  background: #0A0908;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 100px;
+  color: #F2EBE3;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+}
+
+.admin-empty {
+  text-align: center;
+  color: #8E8680;
+  padding: 64px 0;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .admin-login__card { padding: 32px 24px; }
+  .order-card__header { flex-direction: column; align-items: flex-start; }
+}

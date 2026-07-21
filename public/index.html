@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOTIVATOR — Cold Brew Coffee</title>
+  <meta name="description" content="Холодный кофе MOTIVATOR — 6 натуральных вкусов. Соберите упаковку из 12 бутылок.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700;800&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css?v=28">
+  <link rel="stylesheet" href="/css/themes.css?v=7">
+  <link rel="stylesheet" href="/css/effects.css?v=4">
+  <script>
+    (function() {
+      var t = localStorage.getItem('motivator_theme') || 'nexus';
+      if (t === 'cream') t = 'nexus';
+      if (!localStorage.getItem('style_nexus_v1')) {
+        localStorage.setItem('style_nexus_v1', '1');
+        if (!localStorage.getItem('motivator_theme') || t === 'lumina' || t === 'noir') {
+          t = 'nexus';
+          localStorage.setItem('motivator_theme', 'nexus');
+        }
+      }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+  <body>
+  <div class="coffee-bg" aria-hidden="true">
+    <div class="coffee-bg__mesh"></div>
+    <span class="coffee-bg__steam coffee-bg__steam--1"></span>
+    <span class="coffee-bg__steam coffee-bg__steam--2"></span>
+    <span class="coffee-bg__steam coffee-bg__steam--3"></span>
+    <span class="coffee-bg__steam coffee-bg__steam--4"></span>
+    <span class="coffee-bg__bean coffee-bg__bean--1"></span>
+    <span class="coffee-bg__bean coffee-bg__bean--2"></span>
+    <span class="coffee-bg__bean coffee-bg__bean--3"></span>
+    <span class="coffee-bg__bean coffee-bg__bean--4"></span>
+    <span class="coffee-bg__bean coffee-bg__bean--5"></span>
+    <span class="coffee-bg__bean coffee-bg__bean--6"></span>
+    <span class="coffee-bg__ring coffee-bg__ring--1"></span>
+    <span class="coffee-bg__ring coffee-bg__ring--2"></span>
+    <span class="coffee-bg__glow coffee-bg__glow--1"></span>
+    <span class="coffee-bg__glow coffee-bg__glow--2"></span>
+  </div>
+  <div class="ambient-particles" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+  </div>
+  <div class="ambient-glow" aria-hidden="true">
+    <span class="ambient-glow__blob ambient-glow__blob--1"></span>
+    <span class="ambient-glow__blob ambient-glow__blob--2"></span>
+    <span class="ambient-glow__blob ambient-glow__blob--3"></span>
+  </div>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="/" class="logo">
+        <span class="logo__mark">M</span>
+        <span class="logo__text">
+          <span class="logo__brand">MOTIVATOR</span>
+          <span class="logo__sub">Cold Brew Coffee</span>
+        </span>
+      </a>
+      <nav class="nav">
+        <a href="#catalog" class="nav__link">Собрать упаковку</a>
+        <a href="#why" class="nav__link">О продукте</a>
+        <a href="#flavors" class="nav__link">Вкусы</a>
+        <a href="#about" class="nav__link">О бренде</a>
+        <a href="#contacts" class="nav__link">Контакты</a>
+      </nav>
+      <button class="cart-btn" id="cartBtn" aria-label="Корзина">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span class="cart-btn__count" id="cartCount">0</span>
+      </button>
+      <button class="burger" id="burger" aria-label="Меню">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-banner reveal">
+      <div class="hero-banner__bg" aria-hidden="true">
+        <span class="hero-banner__orb hero-banner__orb--1"></span>
+        <span class="hero-banner__orb hero-banner__orb--2"></span>
+        <span class="hero-banner__orb hero-banner__orb--3"></span>
+        <span class="hero-banner__orb hero-banner__orb--4"></span>
+        <span class="hero-banner__orb hero-banner__orb--5"></span>
+        <span class="hero-banner__shine"></span>
+      </div>
+      <div class="hero-banner__content">
+        <p class="hero-banner__eyebrow">Cold Brew · 250 ml · Без сахара</p>
+        <h1 class="hero-banner__title">
+          <span class="hero-banner__brand">MOTIVATOR</span>
+          <span class="hero-banner__type">Cold Brew Coffee</span>
+        </h1>
+        <p class="hero-banner__tagline">Ассорти холодного кофе</p>
+        <div class="hero-banner__img-wrap">
+          <picture>
+            <source
+              media="(min-width: 768px)"
+              srcset="/images/hero-bottles@2x.png?v=17 2x, /images/hero-bottles.png?v=17 1x"
+            >
+            <img
+              src="/images/hero-bottles.png?v=17"
+              srcset="/images/hero-bottles@2x.png?v=17 2x"
+              alt="MOTIVATOR — шесть вкусов cold brew coffee"
+              class="hero-banner__img"
+              width="1024"
+              height="540"
+              decoding="async"
+              fetchpriority="high"
+            >
+          </picture>
+        </div>
+      </div>
+    </div>
+    <div class="container hero__cta reveal">
+      <p class="hero__desc">Шесть натуральных вкусов в одной упаковке. Соберите набор из 12 бутылок — только те вкусы, которые любите вы.</p>
+      <div class="hero__actions">
+        <a href="#catalog" class="btn btn--primary">Собрать упаковку — 2 200 ₽</a>
+        <a href="#flavors" class="btn btn--outline">Все вкусы</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="marquee">
+    <div class="marquee__track">
+      <span>Гранат</span><span>·</span><span>Кизил</span><span>·</span><span>Апельсин</span><span>·</span>
+      <span>Вишня</span><span>·</span><span>Чёрная смородина</span><span>·</span><span>Малина</span><span>·</span>
+      <span>Без сахара</span><span>·</span><span>Cold Brew</span><span>·</span>
+      <span>Гранат</span><span>·</span><span>Кизил</span><span>·</span><span>Апельсин</span><span>·</span>
+      <span>Вишня</span><span>·</span><span>Чёрная смородина</span><span>·</span><span>Малина</span><span>·</span>
+    </div>
+  </section>
+
+  <section class="why" id="why">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">Почему MOTIVATOR</p>
+        <h2 class="section-title">Семь причин<br>полюбить cold brew</h2>
+      </div>
+      <div class="why__bento reveal-stagger">
+        <article class="why-card why-card--hero">
+          <span class="why-card__index">01</span>
+          <div class="why-card__glow" aria-hidden="true"></div>
+          <div class="why-card__visual">
+            <div class="brew-reactor" aria-hidden="true">
+              <span class="brew-reactor__ring brew-reactor__ring--1"></span>
+              <span class="brew-reactor__ring brew-reactor__ring--2"></span>
+              <span class="brew-reactor__ring brew-reactor__ring--3"></span>
+              <div class="brew-reactor__core">
+                <span class="brew-reactor__time">12+</span>
+                <span class="brew-reactor__unit">часов</span>
+              </div>
+              <span class="brew-reactor__stream"></span>
+              <span class="brew-reactor__stream brew-reactor__stream--2"></span>
+            </div>
+          </div>
+          <div class="why-card__body">
+            <span class="why-card__tag">Extraction</span>
+            <h3>Cold Brew</h3>
+            <p>Завариваем холодной водой 12+ часов — мягкий вкус, ноль горечи, максимум бодрости.</p>
+            <div class="why-card__stats">
+              <span><strong>0%</strong> горечи</span>
+              <span><strong>100%</strong> бодрости</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="why-card why-card--compact why-card--flavors">
+          <span class="why-card__index">02</span>
+          <div class="why-card__glow" aria-hidden="true"></div>
+          <div class="why-card__visual">
+            <div class="flavor-constellation" aria-hidden="true">
+              <span class="flavor-constellation__line"></span>
+              <span class="flavor-constellation__node" style="--c:#C41E3A;--a:0deg"></span>
+              <span class="flavor-constellation__node" style="--c:#FF6B00;--a:60deg"></span>
+              <span class="flavor-constellation__node" style="--c:#8B0000;--a:120deg"></span>
+              <span class="flavor-constellation__node" style="--c:#9B1B30;--a:180deg"></span>
+              <span class="flavor-constellation__node" style="--c:#2D1B4E;--a:240deg"></span>
+              <span class="flavor-constellation__node" style="--c:#E0115F;--a:300deg"></span>
+              <span class="flavor-constellation__hub">6</span>
+            </div>
+          </div>
+          <div class="why-card__body">
+            <span class="why-card__tag">Flavor Matrix</span>
+            <h3>6 вкусов</h3>
+            <p>Натуральные фрукты и ягоды — от граната до малины.</p>
+          </div>
+        </article>
+
+        <article class="why-card why-card--compact why-card--sugar">
+          <span class="why-card__index">03</span>
+          <div class="why-card__glow" aria-hidden="true"></div>
+          <div class="why-card__visual">
+            <div class="sugar-zero" aria-hidden="true">
+              <span class="sugar-zero__digit">0</span>
+              <span class="sugar-zero__slash"></span>
+              <span class="sugar-zero__unit">г</span>
+              <span class="sugar-zero__label">sugar</span>
+            </div>
+          </div>
+          <div class="why-card__body">
+            <span class="why-card__tag">Pure Formula</span>
+            <h3>Без сахара</h3>
+            <p>Чистый вкус — только кофе и натуральные ноты.</p>
+          </div>
+        </article>
+
+        <article class="why-card why-card--compact why-card--go">
+          <span class="why-card__index">04</span>
+          <div class="why-card__glow" aria-hidden="true"></div>
+          <div class="why-card__visual">
+            <div class="holo-bottle" aria-hidden="true">
+              <span class="holo-bottle__cap"></span>
+              <span class="holo-bottle__glass"></span>
+              <span class="holo-bottle__liquid"></span>
+              <span class="holo-bottle__vol">250<span>ml</span></span>
+              <span class="holo-bottle__pulse"></span>
+            </div>
+          </div>
+          <div class="why-card__body">
+            <span class="why-card__tag">Portable</span>
+            <h3>Для пути</h3>
+            <p>Компактная бутылка — бери с собой куда угодно.</p>
+          </div>
+        </article>
+
+        <article class="why-card why-card--compact why-card--taste">
+          <span class="why-card__index">05</span>
+          <div class="why-card__glow" aria-hidden="true"></div>
+          <div class="why-card__visual">
+            <div class="flavor-meter" aria-hidden="true">
+              <span class="flavor-meter__bar" style="--h:72%"></span>
+              <span class="flavor-meter__bar" style="--h:95%"></span>
+              <span class="flavor-meter__bar" style="--h:58%"></span>
+              <span class="flavor-meter__bar" style="--h:88%"></span>
+              <span class="flavor-meter__bar" style="--h:100%"></span>
+              <span class="flavor-meter__bar" style="--h:76%"></span>
+              <span class="flavor-meter__peak">MAX</span>
+            </div>
+          </div>
+          <div class="why-card__body">
+            <span class="why-card__tag">Taste Profile</span>
+            <h3>Насыщенный вкус</h3>
+            <p>Холодная экстракция раскрывает глубину — каждый глоток яркий, сочный и запоминающийся.</p>
+          </div>
+        </article>
+
+        <article class="why-card why-card--compact why-card--energy">
+          <span class="why-card__index">06</span>
+          <div class="why-card__glow" aria-hidden="true"></div>
+          <div class="why-card__visual">
+            <div class="energy-gauge" aria-hidden="true">
+              <svg class="energy-gauge__arc" viewBox="0 0 100 100">
+                <circle class="energy-gauge__track" cx="50" cy="50" r="42"/>
+                <circle class="energy-gauge__fill" cx="50" cy="50" r="42"/>
+              </svg>
+              <span class="energy-gauge__bolt">⚡</span>
+              <span class="energy-gauge__label">24h</span>
+            </div>
+          </div>
+          <div class="why-card__body">
+            <span class="why-card__tag">Power Mode</span>
+            <h3>Энергия на весь день</h3>
+            <p>Мягкий кофеин без резких скачков — бодрость с утра и ясная голова до вечера.</p>
+          </div>
+        </article>
+
+        <article class="why-card why-card--compact why-card--natural">
+          <span class="why-card__index">07</span>
+          <div class="why-card__glow" aria-hidden="true"></div>
+          <div class="why-card__visual">
+            <div class="natural-core" aria-hidden="true">
+              <span class="natural-core__ring"></span>
+              <span class="natural-core__ring natural-core__ring--2"></span>
+              <span class="natural-core__leaf">☘</span>
+              <span class="natural-core__dot natural-core__dot--1" style="--r:0deg"></span>
+              <span class="natural-core__dot natural-core__dot--2" style="--r:120deg"></span>
+              <span class="natural-core__dot natural-core__dot--3" style="--r:240deg"></span>
+            </div>
+          </div>
+          <div class="why-card__body">
+            <span class="why-card__tag">Clean Label</span>
+            <h3>Натуральный состав</h3>
+            <p>Только холодный кофе и настоящие фрукты — без красителей, ароматизаторов и лишних добавок.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="flavors-preview" id="flavors">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">Линейка вкусов</p>
+        <h2 class="section-title">Шесть характеров —<br>один бренд</h2>
+      </div>
+      <div class="flavors-preview__grid reveal-stagger" id="flavorsPreview"></div>
+    </div>
+  </section>
+
+  <section class="catalog" id="catalog">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">Заказ</p>
+        <h2 class="section-title">Соберите упаковку</h2>
+        <p class="section-subtitle">12 бутылок по 250 мл — выберите вкусы на свой выбор</p>
+      </div>
+
+      <div class="box-builder reveal">
+        <div class="box-builder__header">
+          <div class="box-builder__price">
+            <span class="box-builder__price-label">Упаковка</span>
+            <span class="box-builder__price-value" id="boxPrice">2 200 ₽</span>
+            <span class="box-builder__price-note">12 бутылок × 250 ml</span>
+          </div>
+          <div class="box-builder__progress-wrap">
+            <div class="box-builder__progress-text">
+              Выбрано <strong id="selectedCount">0</strong> из <span id="boxSize">12</span>
+            </div>
+            <div class="box-builder__progress-bar">
+              <div class="box-builder__progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+          <div class="box-builder__presets" id="boxPresets" aria-label="Быстрый выбор упаковки"></div>
+        </div>
+
+        <div class="box-builder__layout">
+          <div class="box-builder__preview">
+            <p class="box-builder__preview-label">Ваша упаковка</p>
+            <div class="pack-box" id="packBox" aria-label="Содержимое упаковки">
+              <div class="pack-box__grid">
+                <div class="pack-slot" data-i="0"></div><div class="pack-slot" data-i="1"></div><div class="pack-slot" data-i="2"></div><div class="pack-slot" data-i="3"></div>
+                <div class="pack-slot" data-i="4"></div><div class="pack-slot" data-i="5"></div><div class="pack-slot" data-i="6"></div><div class="pack-slot" data-i="7"></div>
+                <div class="pack-slot" data-i="8"></div><div class="pack-slot" data-i="9"></div><div class="pack-slot" data-i="10"></div><div class="pack-slot" data-i="11"></div>
+              </div>
+            </div>
+            <p class="box-builder__preview-hint" id="packHint">Выберите 12 бутылок</p>
+          </div>
+
+          <div class="box-builder__grid" id="flavorGrid"></div>
+        </div>
+
+        <div class="box-builder__footer">
+          <button class="btn btn--primary btn--full btn--lg" id="addBoxBtn" disabled>Добавить упаковку в корзину</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="container about__inner">
+      <div class="about__stats">
+        <div class="stat">
+          <span class="stat__value">6</span>
+          <span class="stat__label">вкусов</span>
+        </div>
+        <div class="stat">
+          <span class="stat__value">250</span>
+          <span class="stat__label">ml в бутылке</span>
+        </div>
+        <div class="stat">
+          <span class="stat__value">12</span>
+          <span class="stat__label">в упаковке</span>
+        </div>
+        <div class="stat">
+          <span class="stat__value">0</span>
+          <span class="stat__label">г сахара</span>
+        </div>
+      </div>
+      <div class="about__content">
+        <p class="section-eyebrow">О бренде</p>
+        <h2 class="section-title">MOTIVATOR — кофе для тех, кто не останавливается</h2>
+        <p>Мы создаём холодный кофе нового поколения: качественный cold brew с натуральными фруктовыми и ягодными нотами. Без искусственных добавок — только чистый вкус и энергия.</p>
+        <ul class="about__list">
+          <li>Натуральные ингредиенты</li>
+          <li>Удобная бутылка для активной жизни</li>
+          <li>Доставка по городу и регионам</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="contacts" id="contacts">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">Связь</p>
+        <h2 class="section-title">Контакты</h2>
+      </div>
+      <div class="contacts__grid">
+        <div class="contact-card">
+          <span class="contact-card__icon">Tel</span>
+          <h3>Телефон</h3>
+          <p><a href="tel:+79001234567">+7 (900) 123-45-67</a></p>
+        </div>
+        <div class="contact-card">
+          <span class="contact-card__icon">@</span>
+          <h3>Email</h3>
+          <p><a href="mailto:order@motivator.coffee">order@motivator.coffee</a></p>
+        </div>
+        <div class="contact-card">
+          <span class="contact-card__icon">→</span>
+          <h3>Доставка</h3>
+          <p>По городу — 1–2 дня<br>Регионы — 3–5 дней</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <a href="/" class="logo logo--footer">
+        <span class="logo__mark">M</span>
+        <span class="logo__text">
+          <span class="logo__brand">MOTIVATOR</span>
+          <span class="logo__sub">Cold Brew Coffee</span>
+        </span>
+      </a>
+      <p class="footer__copy">&copy; 2026 MOTIVATOR</p>
+    </div>
+  </footer>
+
+  <div class="theme-switcher" id="themeSwitcher">
+    <button class="theme-switcher__toggle" id="themeToggle" aria-label="Сменить стиль">◑</button>
+    <div class="theme-switcher__panel">
+      <p class="theme-switcher__title">Стиль сайта</p>
+      <div class="theme-switcher__grid">
+        <button class="theme-option active" data-theme="nexus">
+          <span class="theme-option__swatch" style="background: linear-gradient(135deg, #050302, #C67C4E, #FF9F43)"></span>
+          <span class="theme-option__name">Nexus</span>
+        </button>
+        <button class="theme-option" data-theme="lumina">
+          <span class="theme-option__swatch" style="background: linear-gradient(180deg, #FFFFFF 40%, #0A0908)"></span>
+          <span class="theme-option__name">Lumina</span>
+        </button>
+        <button class="theme-option" data-theme="noir">
+          <span class="theme-option__swatch" style="background: linear-gradient(135deg, #0A0908, #FF5722)"></span>
+          <span class="theme-option__name">Нуар</span>
+        </button>
+        <button class="theme-option" data-theme="cream">
+          <span class="theme-option__swatch" style="background: linear-gradient(135deg, #F7F4EF, #D84315)"></span>
+          <span class="theme-option__name">Светлый</span>
+        </button>
+        <button class="theme-option" data-theme="midnight">
+          <span class="theme-option__swatch" style="background: linear-gradient(135deg, #0B0F14, #00E5FF)"></span>
+          <span class="theme-option__name">Ночь</span>
+        </button>
+        <button class="theme-option" data-theme="citrus">
+          <span class="theme-option__swatch" style="background: linear-gradient(135deg, #FFFBF5, #FF6D00)"></span>
+          <span class="theme-option__name">Цитрус</span>
+        </button>
+        <button class="theme-option" data-theme="espresso">
+          <span class="theme-option__swatch" style="background: linear-gradient(135deg, #1C1410, #C9A84C)"></span>
+          <span class="theme-option__name">Эспрессо</span>
+        </button>
+        <button class="theme-option" data-theme="arctic">
+          <span class="theme-option__swatch" style="background: linear-gradient(135deg, #EEF6FA, #0097A7)"></span>
+          <span class="theme-option__name">Арктика</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <aside class="cart-sidebar" id="cartSidebar">
+    <div class="cart-sidebar__header">
+      <h2>Корзина</h2>
+      <button class="cart-sidebar__close" id="cartClose" aria-label="Закрыть">&times;</button>
+    </div>
+    <div class="cart-sidebar__items" id="cartItems"></div>
+    <div class="cart-sidebar__footer">
+      <div class="cart-sidebar__total">
+        <span>Итого</span>
+        <span id="cartTotal">0 ₽</span>
+      </div>
+      <button class="btn btn--primary btn--full" id="checkoutBtn">Оформить заказ</button>
+    </div>
+  </aside>
+
+  <div class="modal" id="checkoutModal">
+    <div class="modal__content">
+      <button class="modal__close" id="checkoutClose" aria-label="Закрыть">&times;</button>
+      <h2>Оформление заказа</h2>
+      <form id="checkoutForm" class="checkout-form">
+        <div class="form-group">
+          <label for="name">Имя *</label>
+          <input type="text" id="name" name="name" required placeholder="Ваше имя">
+        </div>
+        <div class="form-group">
+          <label for="phone">Телефон *</label>
+          <input type="tel" id="phone" name="phone" required placeholder="+7 (___) ___-__-__">
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="email@example.com">
+        </div>
+        <div class="form-group">
+          <label for="address">Адрес доставки *</label>
+          <textarea id="address" name="address" required rows="2" placeholder="Город, улица, дом, квартира"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="comment">Комментарий</label>
+          <textarea id="comment" name="comment" rows="2" placeholder="Пожелания к заказу"></textarea>
+        </div>
+        <div class="checkout-summary" id="checkoutSummary"></div>
+        <button type="submit" class="btn btn--primary btn--full" id="submitOrderBtn">Подтвердить заказ</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="successModal">
+    <div class="modal__content modal__content--success">
+      <div class="success-icon">✓</div>
+      <h2>Заказ оформлен</h2>
+      <p>Номер заказа: <strong id="orderNumber"></strong></p>
+      <p class="modal__note">Мы свяжемся с вами для подтверждения.</p>
+      <button class="btn btn--primary" id="successClose">Отлично</button>
+    </div>
+  </div>
+
+  <script src="/js/app.js?v=2"></script>
+  <script src="/js/themes.js"></script>
+  <script src="/js/effects.js"></script>
+</body>
+</html>

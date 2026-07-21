@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 768" width="1024" height="768">
+  <!-- White = frame visible (flaps + dividers). Black = bottle layer shows through. -->
+  <rect width="1024" height="768" fill="white"/>
+  <!-- row 1 -->
+  <rect x="128" y="161" width="168" height="152" rx="6" fill="black"/>
+  <rect x="328" y="161" width="168" height="152" rx="6" fill="black"/>
+  <rect x="528" y="161" width="168" height="152" rx="6" fill="black"/>
+  <rect x="728" y="161" width="168" height="152" rx="6" fill="black"/>
+  <!-- row 2 -->
+  <rect x="128" y="345" width="168" height="152" rx="6" fill="black"/>
+  <rect x="328" y="345" width="168" height="152" rx="6" fill="black"/>
+  <rect x="528" y="345" width="168" height="152" rx="6" fill="black"/>
+  <rect x="728" y="345" width="168" height="152" rx="6" fill="black"/>
+  <!-- row 3 -->
+  <rect x="128" y="529" width="168" height="152" rx="6" fill="black"/>
+  <rect x="328" y="529" width="168" height="152" rx="6" fill="black"/>
+  <rect x="528" y="529" width="168" height="152" rx="6" fill="black"/>
+  <rect x="728" y="529" width="168" height="152" rx="6" fill="black"/>
+</svg>

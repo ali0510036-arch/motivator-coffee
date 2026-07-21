@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ — MOTIVATOR Coffee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+  <div id="loginScreen" class="admin-login">
+    <div class="admin-login__card">
+      <h1>MOTIVATOR Admin</h1>
+      <p>Введите токен доступа для просмотра заказов</p>
+      <form id="loginForm">
+        <input type="password" id="adminToken" placeholder="Токен доступа" required>
+        <button type="submit" class="btn btn--primary btn--full">Войти</button>
+      </form>
+      <p class="admin-login__hint">Токен указан в файле .env (ADMIN_TOKEN)</p>
+    </div>
+  </div>
+
+  <div id="adminPanel" class="admin-panel" hidden>
+    <header class="admin-header">
+      <div class="admin-header__inner">
+        <h1>Заказы MOTIVATOR</h1>
+        <div class="admin-header__actions">
+          <button class="btn btn--ghost" id="refreshBtn">Обновить</button>
+          <button class="btn btn--ghost" id="logoutBtn">Выйти</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-stats" id="adminStats"></div>
+      <div class="admin-filters">
+        <button class="filter-btn active" data-status="all">Все</button>
+        <button class="filter-btn" data-status="new">Новые</button>
+        <button class="filter-btn" data-status="processing">В обработке</button>
+        <button class="filter-btn" data-status="shipped">Отправлены</button>
+        <button class="filter-btn" data-status="completed">Завершены</button>
+        <button class="filter-btn" data-status="cancelled">Отменены</button>
+      </div>
+      <div class="admin-orders" id="ordersList"></div>
+    </main>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "motivator-coffee",
+  "version": "1.0.0",
+  "description": "MOTIVATOR Cold Brew Coffee — интернет-магазин",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
