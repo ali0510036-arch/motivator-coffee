@@ -1,7 +1,7 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const { flavors, BOX_SIZE, BOX_PRICE } = require('./products');
 const db = require('./db');
 
@@ -52,6 +52,14 @@ app.get('/api/catalog', (_req, res) => {
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, service: 'motivator-coffee' });
+});
+
+app.post('/api/admin/login', (req, res) => {
+  const token = String(req.body?.token || '').trim();
+  if (!token || token !== ADMIN_TOKEN) {
+    return res.status(401).json({ error: 'Неверный токен доступа' });
+  }
+  res.json({ ok: true });
 });
 
 app.post('/api/orders', (req, res) => {

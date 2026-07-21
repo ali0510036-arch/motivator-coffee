@@ -2065,7 +2065,7 @@ body {
 
 .contacts__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 }
 
@@ -2104,6 +2104,16 @@ body {
 
 .contact-card a:hover { color: var(--accent); }
 
+.contact-card__note {
+  margin-top: 8px;
+  font-size: 0.82rem !important;
+  color: var(--text-light) !important;
+}
+
+.contact-card__note a {
+  font-weight: 400;
+}
+
 /* ── Footer ── */
 .footer {
   padding: 32px 0;
@@ -2114,7 +2124,26 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
 }
+
+.footer__contacts {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.footer__contacts a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.footer__contacts a:hover { color: var(--accent); }
 
 .logo--footer .logo__mark {
   width: 32px;
@@ -2462,7 +2491,7 @@ body {
   .why-card--hero { grid-column: 1 / -1; flex-direction: row; }
   .why-card--compact { grid-column: span 2; }
 
-  .contacts__grid { grid-template-columns: 1fr; }
+  .contacts__grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
@@ -2505,6 +2534,11 @@ body {
   .box-builder__layout { gap: 20px; }
   .box-builder__price-value { font-size: 2.2rem; }
   .container { padding: 0 16px; }
+  .contacts__grid { grid-template-columns: 1fr; }
+
   .footer__inner { flex-direction: column; gap: 16px; text-align: center; }
+  .footer__contacts {
+    justify-content: center;
+  }
   .about__stats { grid-template-columns: repeat(2, 1fr); }
 }

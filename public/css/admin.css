@@ -5,6 +5,13 @@
   color: #F2EBE3;
 }
 
+.admin-login[hidden],
+.admin-panel[hidden],
+.admin-login.is-hidden,
+.admin-panel.is-hidden {
+  display: none !important;
+}
+
 .admin-login {
   min-height: 100vh;
   display: flex;
@@ -57,6 +64,17 @@
   margin-top: 16px;
   font-size: 0.8rem !important;
   color: #5C5650 !important;
+}
+
+.admin-login__error {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 87, 34, 0.12);
+  border: 1px solid rgba(255, 87, 34, 0.35);
+  color: #ff8a65;
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .admin-header {

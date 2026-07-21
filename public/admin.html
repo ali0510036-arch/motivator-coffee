@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/admin.css?v=3">
 </head>
 <body class="admin-body">
   <div id="loginScreen" class="admin-login">
@@ -16,7 +16,8 @@
       <h1>MOTIVATOR Admin</h1>
       <p>Введите токен доступа для просмотра заказов</p>
       <form id="loginForm">
-        <input type="password" id="adminToken" placeholder="Токен доступа" required>
+        <input type="password" id="adminToken" placeholder="Токен доступа" required autocomplete="off">
+        <p id="loginError" class="admin-login__error" hidden></p>
         <button type="submit" class="btn btn--primary btn--full">Войти</button>
       </form>
       <p class="admin-login__hint">Токен указан в файле .env (ADMIN_TOKEN)</p>
@@ -48,6 +49,6 @@
     </main>
   </div>
 
-  <script src="/js/admin.js"></script>
+  <script src="/js/admin.js?v=4"></script>
 </body>
 </html>

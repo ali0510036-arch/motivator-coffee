@@ -30,15 +30,44 @@ function getToken() {
 }
 
 function showPanel() {
-  $('#loginScreen').hidden = true;
-  $('#adminPanel').hidden = false;
+  const login = $('#loginScreen');
+  const panel = $('#adminPanel');
+  login.hidden = true;
+  login.classList.add('is-hidden');
+  panel.hidden = false;
+  panel.classList.remove('is-hidden');
+  const err = $('#loginError');
+  if (err) err.hidden = true;
   loadOrders();
 }
 
-function showLogin() {
+function showLogin(message = '') {
   localStorage.removeItem(TOKEN_KEY);
-  $('#loginScreen').hidden = false;
-  $('#adminPanel').hidden = true;
+  const login = $('#loginScreen');
+  const panel = $('#adminPanel');
+  login.hidden = false;
+  login.classList.remove('is-hidden');
+  panel.hidden = true;
+  panel.classList.add('is-hidden');
+  const err = $('#loginError');
+  if (err) {
+    if (message) {
+      err.textContent = message;
+      err.hidden = false;
+    } else {
+      err.hidden = true;
+      err.textContent = '';
+    }
+  }
+}
+
+async function verifyToken(token) {
+  const res = await fetch('/api/admin/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+  return res.ok;
 }
 
 async function apiFetch(url, options = {}) {
@@ -52,7 +81,7 @@ async function apiFetch(url, options = {}) {
     },
   });
   if (res.status === 401) {
-    showLogin();
+    showLogin('Неверный токен. Проверьте ADMIN_TOKEN на сервере.');
     throw new Error('Неверный токен');
   }
   return res;
@@ -173,12 +202,31 @@ async function updateStatus(orderId, status) {
 }
 
 function bindEvents() {
-  $('#loginForm').addEventListener('submit', (e) => {
+  $('#loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const token = $('#adminToken').value.trim();
     if (!token) return;
-    localStorage.setItem(TOKEN_KEY, token);
-    showPanel();
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    const err = $('#loginError');
+    err.hidden = true;
+    btn.disabled = true;
+    btn.textContent = 'Проверка…';
+
+    try {
+      const ok = await verifyToken(token);
+      if (!ok) {
+        showLogin('Неверный токен. На сервере: grep ADMIN_TOKEN /var/www/motivator-coffee/.env');
+        return;
+      }
+      localStorage.setItem(TOKEN_KEY, token);
+      showPanel();
+    } catch {
+      showLogin('Не удалось подключиться к серверу. Обновите страницу.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Войти';
+    }
   });
 
   $('#logoutBtn').addEventListener('click', showLogin);
@@ -200,7 +248,15 @@ function bindEvents() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   bindEvents();
-  if (getToken()) showPanel();
+  const saved = getToken();
+  if (saved) {
+    try {
+      if (await verifyToken(saved)) showPanel();
+      else showLogin('Сессия истекла. Введите токен снова.');
+    } catch {
+      showLogin();
+    }
+  }
 });
