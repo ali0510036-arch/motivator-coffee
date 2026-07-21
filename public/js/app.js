@@ -134,7 +134,7 @@ function buildLocalPaymentDetails(order) {
     amountFormatted: `${amount.toLocaleString('ru-RU')} ₽`,
     comment: `Заказ MOTIVATOR ${order.orderNumber}`,
     sbpLink: `https://www.sberbank.com/sms/pbpn?requisiteNumber=${phone}&amount=${amount.toFixed(2)}`,
-    instruction: 'Переведите сумму по номеру телефона через СБП. В комментарии укажите номер заказа.',
+    instruction: 'Телефон и сумма подставятся в банке автоматически. Комментарий к заказу скопируется — вставьте его в поле «Сообщение».',
   };
 }
 
@@ -146,8 +146,54 @@ async function copyText(text, button) {
       button.textContent = 'Скопировано';
       window.setTimeout(() => { button.textContent = prev; }, 1500);
     }
+    return true;
   } catch {
     window.prompt('Скопируйте:', text);
+    return false;
+  }
+}
+
+function showPayCopyStatus(message) {
+  let status = $('#payCopyStatus');
+  if (!status) {
+    status = document.createElement('p');
+    status.id = 'payCopyStatus';
+    status.className = 'payment-details__status';
+    status.setAttribute('role', 'status');
+    const bankBtn = $('#payOpenBank');
+    if (bankBtn?.parentElement) {
+      bankBtn.parentElement.insertBefore(status, bankBtn);
+    }
+  }
+  status.textContent = message;
+  status.removeAttribute('hidden');
+}
+
+function bindPaymentActions(payment) {
+  const commentCopy = $('#payCommentCopy');
+  if (commentCopy) {
+    commentCopy.onclick = () => copyText(payment.comment, commentCopy);
+  }
+
+  const phoneCopy = $('#payPhoneCopy');
+  if (phoneCopy) {
+    phoneCopy.onclick = () => copyText(payment.phone, phoneCopy);
+  }
+
+  const amountCopy = $('#payAmountCopy');
+  if (amountCopy) {
+    amountCopy.onclick = () => copyText(String(payment.amount), amountCopy);
+  }
+
+  const bankBtn = $('#payOpenBank');
+  if (bankBtn) {
+    bankBtn.href = payment.sbpLink;
+    bankBtn.onclick = async (e) => {
+      e.preventDefault();
+      await copyText(payment.comment);
+      showPayCopyStatus('Комментарий скопирован — вставьте его в поле «Сообщение» в банке');
+      window.open(payment.sbpLink, '_blank', 'noopener,noreferrer');
+    };
   }
 }
 
@@ -184,11 +230,15 @@ function ensurePaymentDetailsBlock() {
       </div>
       <div class="payment-details__row">
         <dt>Комментарий</dt>
-        <dd id="payComment"></dd>
+        <dd>
+          <span id="payComment"></span>
+          <button type="button" class="payment-details__copy" id="payCommentCopy">Копировать</button>
+        </dd>
       </div>
     </dl>
+    <p class="payment-details__status" id="payCopyStatus" hidden></p>
     <a class="btn btn--primary btn--full" id="payOpenBank" href="#" target="_blank" rel="noopener noreferrer">Перевести через СБП</a>
-    <p class="payment-details__hint">Можно перевести из любого банка по номеру телефона. Укажите номер заказа в комментарии.</p>
+    <p class="payment-details__hint">Телефон и сумма откроются в банке. Комментарий копируется автоматически — вставьте его в поле «Сообщение».</p>
   `;
 
   const closeBtn = $('#successClose');
@@ -209,20 +259,14 @@ function showPaymentInstructions(payment, orderNumber) {
     $('#payAmount').textContent = payment.amountFormatted;
     $('#payComment').textContent = payment.comment;
 
-    const bankBtn = $('#payOpenBank');
-    if (bankBtn) bankBtn.href = payment.sbpLink;
-
-    const phoneCopy = $('#payPhoneCopy');
-    if (phoneCopy) {
-      phoneCopy.onclick = () => copyText(payment.phone, phoneCopy);
-    }
-
-    const amountCopy = $('#payAmountCopy');
-    if (amountCopy) {
-      amountCopy.onclick = () => copyText(String(payment.amount), amountCopy);
-    }
-
+    bindPaymentActions(payment);
     details.removeAttribute('hidden');
+
+    copyText(payment.comment).then((copied) => {
+      if (copied) {
+        showPayCopyStatus('Комментарий скопирован — вставьте его в поле «Сообщение» в банке');
+      }
+    });
   }
 
   $('#successModal').classList.add('active');

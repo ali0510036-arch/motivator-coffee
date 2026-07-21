@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700;800&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=39">
+  <link rel="stylesheet" href="/css/style.css?v=40">
   <link rel="stylesheet" href="/css/themes.css?v=7">
   <link rel="stylesheet" href="/css/effects.css?v=4">
   <script>
@@ -563,17 +563,21 @@
           </div>
           <div class="payment-details__row">
             <dt>Комментарий</dt>
-            <dd id="payComment"></dd>
+            <dd>
+              <span id="payComment"></span>
+              <button type="button" class="payment-details__copy" id="payCommentCopy" aria-label="Скопировать комментарий">Копировать</button>
+            </dd>
           </div>
         </dl>
+        <p class="payment-details__status" id="payCopyStatus" hidden></p>
         <a class="btn btn--primary btn--full" id="payOpenBank" href="#" target="_blank" rel="noopener noreferrer">Перевести через СБП</a>
-        <p class="payment-details__hint">Можно перевести из любого банка по номеру телефона. Укажите номер заказа в комментарии.</p>
+        <p class="payment-details__hint">Телефон и сумма откроются в банке. Комментарий копируется автоматически — вставьте его в поле «Сообщение».</p>
       </div>
       <button class="btn btn--primary" id="successClose">Отлично</button>
     </div>
   </div>
 
-  <script src="/js/app.js?v=10"></script>
+  <script src="/js/app.js?v=11"></script>
   <script src="/js/themes.js"></script>
   <script src="/js/effects.js"></script>
 </body>

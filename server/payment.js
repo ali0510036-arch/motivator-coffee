@@ -47,7 +47,7 @@ function buildPaymentDetails(order) {
     amountFormatted: `${amount.toLocaleString('ru-RU')} ₽`,
     comment,
     sbpLink: buildSbpLink(phone, amount),
-    instruction: 'Переведите сумму по номеру телефона через СБП. В комментарии укажите номер заказа.',
+    instruction: 'Телефон и сумма подставятся в банке автоматически. Комментарий к заказу скопируется — вставьте его в поле «Сообщение».',
   };
 }
 

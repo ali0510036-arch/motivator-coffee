@@ -2754,6 +2754,16 @@ body {
   line-height: 1.4;
 }
 
+.payment-details__status {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
 .modal__note { color: var(--text-muted); margin-bottom: 16px; }
 
 .success-icon {
