@@ -239,10 +239,15 @@ function consumeVerification(token, rawPhone) {
   return true;
 }
 
+function isVerificationEnabled() {
+  return Boolean(process.env.SMSRU_API_ID?.trim() && process.env.SMSRU_FROM?.trim());
+}
+
 module.exports = {
   normalizePhone,
   formatPhoneDisplay,
   sendVerificationCode,
   verifyCode,
   consumeVerification,
+  isVerificationEnabled,
 };

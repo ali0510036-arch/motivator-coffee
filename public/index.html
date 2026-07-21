@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700;800&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=35">
+  <link rel="stylesheet" href="/css/style.css?v=36">
   <link rel="stylesheet" href="/css/themes.css?v=7">
   <link rel="stylesheet" href="/css/effects.css?v=4">
   <script>
@@ -493,7 +493,7 @@
   </aside>
 
   <div class="modal" id="checkoutModal">
-    <div class="modal__content modal__content--light">
+    <div class="modal__content">
       <button class="modal__close" id="checkoutClose" aria-label="Закрыть">&times;</button>
       <h2>Оформление заказа</h2>
       <form id="checkoutForm" class="checkout-form">
@@ -501,7 +501,7 @@
           <label for="name">Имя *</label>
           <input type="text" id="name" name="name" required placeholder="Ваше имя">
         </div>
-        <div class="form-group form-group--phone">
+        <div class="form-group form-group--phone" id="phoneVerifyGroup">
           <label for="phone">Телефон *</label>
           <div class="phone-verify">
             <div class="phone-field">
@@ -544,7 +544,7 @@
     </div>
   </div>
 
-  <script src="/js/app.js?v=5"></script>
+  <script src="/js/app.js?v=6"></script>
   <script src="/js/themes.js"></script>
   <script src="/js/effects.js"></script>
 </body>

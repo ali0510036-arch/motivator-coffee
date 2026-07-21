@@ -63,7 +63,14 @@ app.post('/api/admin/login', (req, res) => {
   res.json({ ok: true });
 });
 
+app.get('/api/sms/status', (_req, res) => {
+  res.json({ enabled: sms.isVerificationEnabled() });
+});
+
 app.post('/api/sms/send', async (req, res) => {
+  if (!sms.isVerificationEnabled()) {
+    return res.status(503).json({ error: 'Подтверждение по SMS временно недоступно' });
+  }
   try {
     const result = await sms.sendVerificationCode(req.body?.phone, req.ip);
     if (!result.ok) {
@@ -106,7 +113,7 @@ app.post('/api/orders', (req, res) => {
   if (!customerName?.trim() || !customerPhone?.trim() || !customerAddress?.trim()) {
     return res.status(400).json({ error: 'Заполните имя, телефон и адрес доставки' });
   }
-  if (!sms.consumeVerification(phoneVerificationToken, customerPhone)) {
+  if (sms.isVerificationEnabled() && !sms.consumeVerification(phoneVerificationToken, customerPhone)) {
     return res.status(400).json({ error: 'Подтвердите номер телефона кодом из SMS' });
   }
   if (!items?.length) {

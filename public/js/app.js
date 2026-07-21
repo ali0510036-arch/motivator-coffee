@@ -8,6 +8,7 @@ let boxMode = 'assortment';
 let singleFlavorId = null;
 let phoneVerificationToken = null;
 let phoneVerified = false;
+let smsVerificationEnabled = false;
 let smsCooldownTimer = null;
 let cart = loadCart();
 
@@ -59,12 +60,12 @@ function bindPhoneInput() {
     const formatted = formatPhoneLocal(input.value);
     if (input.value !== formatted) input.value = formatted;
 
-    if (phoneVerified || phoneVerificationToken) {
+    if (smsVerificationEnabled && (phoneVerified || phoneVerificationToken)) {
       phoneVerified = false;
       phoneVerificationToken = null;
       input.readOnly = false;
-      updateSubmitButtonState();
     }
+    updateSubmitButtonState();
   });
 }
 
@@ -94,6 +95,7 @@ async function init() {
   updateCartUI();
   bindEvents();
   bindPhoneInput();
+  loadSmsStatus();
 }
 
 function renderFlavorsPreview() {
@@ -454,8 +456,31 @@ function setPhoneVerifyStatus(message, type = '') {
 function updateSubmitButtonState() {
   const submitBtn = $('#submitOrderBtn');
   if (!submitBtn) return;
-  submitBtn.disabled = !phoneVerified;
-  submitBtn.textContent = phoneVerified ? 'Подтвердить заказ' : 'Подтвердите телефон по SMS';
+  const ready = smsVerificationEnabled ? phoneVerified : getPhoneDigits().length === 10;
+  submitBtn.disabled = !ready;
+  submitBtn.textContent = ready
+    ? 'Подтвердить заказ'
+    : (smsVerificationEnabled ? 'Подтвердите телефон по SMS' : 'Введите номер телефона');
+}
+
+async function loadSmsStatus() {
+  try {
+    const res = await fetch('/api/sms/status');
+    const data = await res.json();
+    smsVerificationEnabled = Boolean(data.enabled);
+  } catch {
+    smsVerificationEnabled = false;
+  }
+
+  const group = $('#phoneVerifyGroup');
+  if (group) {
+    group.classList.toggle('is-sms-off', !smsVerificationEnabled);
+  }
+  if (!smsVerificationEnabled) {
+    phoneVerified = true;
+    phoneVerificationToken = null;
+  }
+  updateSubmitButtonState();
 }
 
 function startSmsCooldown(seconds) {
@@ -565,6 +590,8 @@ function openCheckout() {
   const phoneInput = $('#phone');
   if (phoneInput) phoneInput.readOnly = false;
 
+  loadSmsStatus();
+
   const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
   $('#checkoutSummary').innerHTML = `
     ${cart.map((i) => `
@@ -590,8 +617,12 @@ function closeCheckout() {
 
 async function submitOrder(e) {
   e.preventDefault();
-  if (!phoneVerified || !phoneVerificationToken) {
+  if (smsVerificationEnabled && (!phoneVerified || !phoneVerificationToken)) {
     setPhoneVerifyStatus('Подтвердите телефон кодом из SMS', 'error');
+    return;
+  }
+  if (getPhoneDigits().length !== 10) {
+    setPhoneVerifyStatus('Введите 10 цифр номера после +7', 'error');
     return;
   }
 
