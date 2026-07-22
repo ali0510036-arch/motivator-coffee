@@ -193,7 +193,7 @@ function renderOrders() {
             `<option value="${val}" ${o.status === val ? 'selected' : ''}>${label}</option>`
           ).join('')}
         </select>
-        <button type="button" class="btn btn--ghost btn--sm btn--danger-ghost delete-order-btn" data-id="${o.id}" data-number="${o.orderNumber}">Удалить</button>
+        <button type="button" class="btn btn--outline btn--sm admin-delete-btn delete-order-btn" data-id="${o.id}" data-number="${o.orderNumber}">Удалить заказ</button>
       </div>
     </div>
   `).join('');

@@ -300,6 +300,37 @@
   font-size: 0.85rem;
 }
 
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 14px 18px;
+  background: rgba(255, 87, 34, 0.08);
+  border: 1px solid rgba(255, 87, 34, 0.28);
+  border-radius: 12px;
+}
+
+.admin-toolbar__hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #8E8680;
+}
+
+.admin-toolbar__clear {
+  border-color: rgba(255, 120, 100, 0.55) !important;
+  color: #ffb199 !important;
+  white-space: nowrap;
+}
+
+.admin-toolbar__clear:hover {
+  background: rgba(255, 87, 34, 0.15) !important;
+  border-color: #ff7043 !important;
+  color: #fff !important;
+}
+
 .btn--danger-ghost {
   color: #c97a7a !important;
   border: 1px solid rgba(201, 122, 122, 0.35) !important;
@@ -311,12 +342,19 @@
   background: rgba(201, 80, 80, 0.12) !important;
 }
 
-.order-card__actions .delete-order-btn {
+.admin-delete-btn {
   margin-left: auto;
+  border-color: rgba(255, 120, 100, 0.45) !important;
+  color: #ffab91 !important;
 }
 
-.admin-header__actions .btn--danger-ghost {
-  font-size: 0.85rem;
+.admin-delete-btn:hover {
+  background: rgba(255, 87, 34, 0.12) !important;
+  color: #fff !important;
+}
+
+.order-card__actions .delete-order-btn {
+  margin-left: auto;
 }
 
 .admin-empty {
