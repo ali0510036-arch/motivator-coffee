@@ -193,6 +193,7 @@ function renderOrders() {
             `<option value="${val}" ${o.status === val ? 'selected' : ''}>${label}</option>`
           ).join('')}
         </select>
+        <button type="button" class="btn btn--ghost btn--sm btn--danger-ghost delete-order-btn" data-id="${o.id}" data-number="${o.orderNumber}">Удалить</button>
       </div>
     </div>
   `).join('');
@@ -219,6 +220,45 @@ async function updateStatus(orderId, status) {
     await loadOrders();
   } catch {
     alert('Ошибка обновления статуса');
+  }
+}
+
+async function deleteOrder(orderId, orderNumber) {
+  const label = orderNumber ? `#${orderNumber}` : `ID ${orderId}`;
+  if (!confirm(`Удалить заказ ${label}? Это действие необратимо.`)) return;
+
+  try {
+    const res = await apiFetch(`/api/orders/${orderId}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Ошибка удаления');
+    }
+    await loadOrders();
+  } catch (err) {
+    alert(err.message || 'Ошибка удаления заказа');
+  }
+}
+
+async function clearAllOrders() {
+  if (!orders.length) {
+    alert('Список заказов уже пуст');
+    return;
+  }
+  if (!confirm(`Удалить все ${orders.length} заказов? Это необратимо.`)) return;
+  if (prompt('Введите УДАЛИТЬ для подтверждения') !== 'УДАЛИТЬ') return;
+
+  try {
+    const res = await apiFetch('/api/orders', {
+      method: 'DELETE',
+      body: JSON.stringify({ confirm: 'DELETE_ALL' }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Ошибка очистки');
+    }
+    await loadOrders();
+  } catch (err) {
+    alert(err.message || 'Ошибка очистки заказов');
   }
 }
 
@@ -252,6 +292,7 @@ function bindEvents() {
 
   $('#logoutBtn').addEventListener('click', showLogin);
   $('#refreshBtn').addEventListener('click', loadOrders);
+  $('#clearAllBtn').addEventListener('click', clearAllOrders);
 
   $$('.admin-filters .filter-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -266,6 +307,9 @@ function bindEvents() {
     if (e.target.classList.contains('mark-paid-btn')) {
       markOrderPaid(Number(e.target.dataset.id));
       return;
+    }
+    if (e.target.classList.contains('delete-order-btn')) {
+      deleteOrder(Number(e.target.dataset.id), e.target.dataset.number);
     }
   });
 

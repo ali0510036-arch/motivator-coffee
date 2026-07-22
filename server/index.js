@@ -196,6 +196,21 @@ app.patch('/api/orders/:id/status', requireAdmin, (req, res) => {
   res.json(order);
 });
 
+app.delete('/api/orders/:id', requireAdmin, (req, res) => {
+  const order = db.deleteOrder(Number(req.params.id));
+  if (!order) return res.status(404).json({ error: 'Заказ не найден' });
+  res.json({ ok: true, deleted: order });
+});
+
+app.delete('/api/orders', requireAdmin, (req, res) => {
+  const { confirm } = req.body || {};
+  if (confirm !== 'DELETE_ALL') {
+    return res.status(400).json({ error: 'Для удаления всех заказов передайте confirm: "DELETE_ALL"' });
+  }
+  const deleted = db.deleteAllOrders();
+  res.json({ ok: true, deleted });
+});
+
 app.get('/admin', (_req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
 });

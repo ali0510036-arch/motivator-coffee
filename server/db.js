@@ -81,6 +81,21 @@ function updateOrderPaymentStatus(id, paymentStatus) {
   return orders[index];
 }
 
+function deleteOrder(id) {
+  const orders = readOrders();
+  const index = orders.findIndex((o) => o.id === id);
+  if (index === -1) return null;
+  const [removed] = orders.splice(index, 1);
+  writeOrders(orders);
+  return removed;
+}
+
+function deleteAllOrders() {
+  const count = readOrders().length;
+  writeOrders([]);
+  return count;
+}
+
 function generateOrderNumber() {
   const prefix = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const count = readOrders().filter((o) => o.orderNumber.startsWith(prefix)).length;
@@ -94,5 +109,7 @@ module.exports = {
   updateOrderStatus,
   updateOrderPaymentStatus,
   markOrderPaidByNumber,
+  deleteOrder,
+  deleteAllOrders,
   generateOrderNumber,
 };
