@@ -730,9 +730,26 @@ function addBoxToCart() {
   }
 
   saveCart();
-  setBoxMode('assortment');
+  resetBoxBuilder();
   if (window.pulseCartButton) window.pulseCartButton();
   openCart();
+}
+
+function resetBoxBuilder() {
+  boxMode = null;
+  singleFlavorId = null;
+  resetSelection();
+  updateProgress({ refreshModePicker: true, refreshSide: true });
+  hideAddBoxBar();
+}
+
+function goToAddAnotherBox() {
+  closeCart();
+  resetBoxBuilder();
+  const catalog = document.getElementById('catalog');
+  if (catalog) {
+    catalog.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 function updateCartQuantity(cartId, delta) {
@@ -754,10 +771,14 @@ function updateCartUI() {
   $('#cartTotal').textContent = formatPrice(total);
 
   const container = $('#cartItems');
+  const addMoreBtn = $('#addMoreBtn');
   if (!cart.length) {
     container.innerHTML = '<p class="cart-empty">Корзина пуста</p>';
+    if (addMoreBtn) addMoreBtn.hidden = true;
     return;
   }
+
+  if (addMoreBtn) addMoreBtn.hidden = false;
 
   container.innerHTML = cart.map((item) => `
     <div class="cart-item cart-item--box">
@@ -1048,6 +1069,7 @@ function bindEvents() {
     if (e.target.value.length === 4) verifyPhoneCode();
   });
   $('#addBoxBtn').addEventListener('click', addBoxToCart);
+  $('#addMoreBtn').addEventListener('click', goToAddAnotherBox);
 
   $('#boxModePicker').addEventListener('click', (e) => {
     const card = e.target.closest('.box-mode-card[data-mode]');
