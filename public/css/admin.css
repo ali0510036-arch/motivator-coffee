@@ -60,12 +60,6 @@
   border-color: #FF5722;
 }
 
-.admin-login__hint {
-  margin-top: 16px;
-  font-size: 0.8rem !important;
-  color: #5C5650 !important;
-}
-
 .admin-login__error {
   margin: 0 0 12px;
   padding: 10px 12px;
