@@ -33,6 +33,8 @@ function createOrder(data) {
     total: data.total,
     status: data.status || 'new',
     paymentStatus: data.paymentStatus || 'none',
+    archived: false,
+    archivedAt: null,
     createdAt: new Date().toISOString(),
   };
   orders.unshift(order);
@@ -81,13 +83,32 @@ function updateOrderPaymentStatus(id, paymentStatus) {
   return orders[index];
 }
 
+function archiveOrder(id) {
+  const orders = readOrders();
+  const index = orders.findIndex((o) => o.id === id);
+  if (index === -1) return null;
+  orders[index].archived = true;
+  orders[index].archivedAt = new Date().toISOString();
+  writeOrders(orders);
+  return orders[index];
+}
+
 function deleteOrder(id) {
   const orders = readOrders();
   const index = orders.findIndex((o) => o.id === id);
   if (index === -1) return null;
+  if (!orders[index].archived) return { error: 'ORDER_NOT_ARCHIVED' };
   const [removed] = orders.splice(index, 1);
   writeOrders(orders);
   return removed;
+}
+
+function clearArchivedOrders() {
+  const orders = readOrders();
+  const kept = orders.filter((o) => !o.archived);
+  const deleted = orders.length - kept.length;
+  writeOrders(kept);
+  return deleted;
 }
 
 function deleteAllOrders() {
@@ -109,7 +130,9 @@ module.exports = {
   updateOrderStatus,
   updateOrderPaymentStatus,
   markOrderPaidByNumber,
+  archiveOrder,
   deleteOrder,
+  clearArchivedOrders,
   deleteAllOrders,
   generateOrderNumber,
 };

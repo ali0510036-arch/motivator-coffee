@@ -21,6 +21,18 @@ const PAYMENT_LABELS = {
   none: '—',
 };
 
+function isArchived(order) {
+  return order.archived === true;
+}
+
+function activeOrders() {
+  return orders.filter((o) => !isArchived(o));
+}
+
+function archivedOrders() {
+  return orders.filter((o) => isArchived(o));
+}
+
 function formatPrice(n) {
   return n.toLocaleString('ru-RU') + ' ₽';
 }
@@ -39,12 +51,10 @@ function getToken() {
 }
 
 function showPanel() {
-  const login = $('#loginScreen');
-  const panel = $('#adminPanel');
-  login.hidden = true;
-  login.classList.add('is-hidden');
-  panel.hidden = false;
-  panel.classList.remove('is-hidden');
+  $('#loginScreen').hidden = true;
+  $('#loginScreen').classList.add('is-hidden');
+  $('#adminPanel').hidden = false;
+  $('#adminPanel').classList.remove('is-hidden');
   const err = $('#loginError');
   if (err) err.hidden = true;
   loadOrders();
@@ -52,12 +62,10 @@ function showPanel() {
 
 function showLogin(message = '') {
   localStorage.removeItem(TOKEN_KEY);
-  const login = $('#loginScreen');
-  const panel = $('#adminPanel');
-  login.hidden = false;
-  login.classList.remove('is-hidden');
-  panel.hidden = true;
-  panel.classList.add('is-hidden');
+  $('#loginScreen').hidden = false;
+  $('#loginScreen').classList.remove('is-hidden');
+  $('#adminPanel').hidden = true;
+  $('#adminPanel').classList.add('is-hidden');
   const err = $('#loginError');
   if (err) {
     if (message) {
@@ -96,11 +104,18 @@ async function apiFetch(url, options = {}) {
   return res;
 }
 
+function updateArchiveToolbar() {
+  const toolbar = $('#archiveToolbar');
+  if (!toolbar) return;
+  toolbar.hidden = currentFilter !== 'archive';
+}
+
 async function loadOrders() {
   try {
     const res = await apiFetch('/api/orders');
     orders = await res.json();
     renderStats();
+    updateArchiveToolbar();
     renderOrders();
   } catch (err) {
     if (err.message !== 'Неверный токен') {
@@ -110,17 +125,19 @@ async function loadOrders() {
 }
 
 function renderStats() {
+  const list = activeOrders();
   const stats = {
-    total: orders.length,
-    new: orders.filter((o) => o.status === 'new').length,
-    processing: orders.filter((o) => o.status === 'processing').length,
-    revenue: orders.filter((o) => o.status !== 'cancelled').reduce((s, o) => s + o.total, 0),
+    total: list.length,
+    new: list.filter((o) => o.status === 'new').length,
+    processing: list.filter((o) => o.status === 'processing').length,
+    archived: archivedOrders().length,
+    revenue: list.filter((o) => o.status !== 'cancelled').reduce((s, o) => s + o.total, 0),
   };
 
   $('#adminStats').innerHTML = `
     <div class="stat-card">
       <div class="stat-card__value">${stats.total}</div>
-      <div class="stat-card__label">Всего заказов</div>
+      <div class="stat-card__label">Активных</div>
     </div>
     <div class="stat-card">
       <div class="stat-card__value">${stats.new}</div>
@@ -131,31 +148,52 @@ function renderStats() {
       <div class="stat-card__label">В обработке</div>
     </div>
     <div class="stat-card">
+      <div class="stat-card__value">${stats.archived}</div>
+      <div class="stat-card__label">В архиве</div>
+    </div>
+    <div class="stat-card">
       <div class="stat-card__value">${formatPrice(stats.revenue)}</div>
       <div class="stat-card__label">Выручка</div>
     </div>
   `;
 }
 
-function renderOrders() {
-  const filtered = currentFilter === 'all'
-    ? orders
-    : orders.filter((o) => o.status === currentFilter);
+function getFilteredOrders() {
+  if (currentFilter === 'archive') return archivedOrders();
+  const list = activeOrders();
+  if (currentFilter === 'all') return list;
+  return list.filter((o) => o.status === currentFilter);
+}
 
-  if (!filtered.length) {
-    $('#ordersList').innerHTML = '<p class="admin-empty">Заказов пока нет</p>';
-    return;
-  }
+function renderOrderCard(o, { archiveView }) {
+  const archiveBtn = archiveView
+    ? `<button type="button" class="btn btn--outline btn--sm delete-order-btn" data-id="${o.id}" data-number="${o.orderNumber}">Удалить заказ</button>`
+    : `<button type="button" class="order-card__archive archive-order-btn" data-id="${o.id}" data-number="${o.orderNumber}">В архив</button>`;
 
-  $('#ordersList').innerHTML = filtered.map((o) => `
-    <div class="order-card">
+  const statusControls = archiveView
+    ? ''
+    : `
+        ${o.paymentStatus === 'pending' ? `<button type="button" class="btn btn--ghost btn--sm mark-paid-btn" data-id="${o.id}">Отметить оплаченным</button>` : ''}
+        <select data-id="${o.id}" class="status-select">
+          ${Object.entries(STATUS_LABELS).map(([val, label]) =>
+            `<option value="${val}" ${o.status === val ? 'selected' : ''}>${label}</option>`
+          ).join('')}
+        </select>
+      `;
+
+  return `
+    <div class="order-card${archiveView ? ' order-card--archived' : ''}">
       <div class="order-card__header">
         <div>
           <span class="order-card__number">#${o.orderNumber}</span>
           <span class="order-card__date">${formatDate(o.createdAt)}</span>
+          ${o.archivedAt ? `<span class="order-card__archived-at">архив · ${formatDate(o.archivedAt)}</span>` : ''}
         </div>
-        <span class="order-card__status status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
-        ${o.paymentStatus && o.paymentStatus !== 'none' ? `<span class="order-card__payment status-payment-${o.paymentStatus}">${PAYMENT_LABELS[o.paymentStatus] || o.paymentStatus}</span>` : ''}
+        <div class="order-card__header-actions">
+          ${archiveBtn}
+          <span class="order-card__status status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
+          ${o.paymentStatus && o.paymentStatus !== 'none' ? `<span class="order-card__payment status-payment-${o.paymentStatus}">${PAYMENT_LABELS[o.paymentStatus] || o.paymentStatus}</span>` : ''}
+        </div>
       </div>
       <div class="order-card__customer">
         <div class="order-card__field">
@@ -188,17 +226,23 @@ function renderOrders() {
         `).join('')}
       </div>
       <div class="order-card__total">Итого: ${formatPrice(o.total)}</div>
-      <div class="order-card__actions">
-        ${o.paymentStatus === 'pending' ? `<button type="button" class="btn btn--ghost btn--sm mark-paid-btn" data-id="${o.id}">Отметить оплаченным</button>` : ''}
-        <select data-id="${o.id}" class="status-select">
-          ${Object.entries(STATUS_LABELS).map(([val, label]) =>
-            `<option value="${val}" ${o.status === val ? 'selected' : ''}>${label}</option>`
-          ).join('')}
-        </select>
-        <button type="button" class="btn btn--outline btn--sm admin-delete-btn delete-order-btn" data-id="${o.id}" data-number="${o.orderNumber}">Удалить заказ</button>
-      </div>
+      ${statusControls ? `<div class="order-card__actions">${statusControls}</div>` : ''}
     </div>
-  `).join('');
+  `;
+}
+
+function renderOrders() {
+  const filtered = getFilteredOrders();
+  const archiveView = currentFilter === 'archive';
+
+  if (!filtered.length) {
+    $('#ordersList').innerHTML = archiveView
+      ? '<p class="admin-empty">Архив пуст</p>'
+      : '<p class="admin-empty">Заказов пока нет</p>';
+    return;
+  }
+
+  $('#ordersList').innerHTML = filtered.map((o) => renderOrderCard(o, { archiveView })).join('');
 }
 
 async function markOrderPaid(orderId) {
@@ -225,9 +269,26 @@ async function updateStatus(orderId, status) {
   }
 }
 
+async function archiveOrder(orderId, orderNumber) {
+  const label = orderNumber ? `#${orderNumber}` : `ID ${orderId}`;
+  if (!confirm(`Переместить заказ ${label} в архив?`)) return;
+
+  try {
+    const res = await apiFetch(`/api/orders/${orderId}/archive`, { method: 'PATCH' });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Ошибка архивации');
+    }
+    await loadOrders();
+  } catch (err) {
+    alert(err.message || 'Не удалось переместить в архив');
+  }
+}
+
 async function deleteOrder(orderId, orderNumber) {
   const label = orderNumber ? `#${orderNumber}` : `ID ${orderId}`;
-  if (!confirm(`Удалить заказ ${label}? Это действие необратимо.`)) return;
+  if (!confirm(`Удалить заказ ${label} навсегда?`)) return;
+  if (!confirm(`Точно удалить ${label}? Восстановить будет нельзя.`)) return;
 
   try {
     const res = await apiFetch(`/api/orders/${orderId}`, { method: 'DELETE' });
@@ -241,26 +302,27 @@ async function deleteOrder(orderId, orderNumber) {
   }
 }
 
-async function clearAllOrders() {
-  if (!orders.length) {
-    alert('Список заказов уже пуст');
+async function clearArchive() {
+  const count = archivedOrders().length;
+  if (!count) {
+    alert('Архив уже пуст');
     return;
   }
-  if (!confirm(`Удалить все ${orders.length} заказов? Это необратимо.`)) return;
-  if (prompt('Введите УДАЛИТЬ для подтверждения') !== 'УДАЛИТЬ') return;
+  if (!confirm(`Удалить все ${count} заказов из архива?`)) return;
+  if (prompt('Введите ОЧИСТИТЬ для подтверждения') !== 'ОЧИСТИТЬ') return;
 
   try {
-    const res = await apiFetch('/api/orders', {
+    const res = await apiFetch('/api/orders/archive', {
       method: 'DELETE',
-      body: JSON.stringify({ confirm: 'DELETE_ALL' }),
+      body: JSON.stringify({ confirm: 'CLEAR_ARCHIVE' }),
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      throw new Error(data.error || 'Ошибка очистки');
+      throw new Error(data.error || 'Ошибка очистки архива');
     }
     await loadOrders();
   } catch (err) {
-    alert(err.message || 'Ошибка очистки заказов');
+    alert(err.message || 'Ошибка очистки архива');
   }
 }
 
@@ -294,24 +356,30 @@ function bindEvents() {
 
   $('#logoutBtn').addEventListener('click', showLogin);
   $('#refreshBtn').addEventListener('click', loadOrders);
-  $('#clearAllBtn').addEventListener('click', clearAllOrders);
+  $('#clearArchiveBtn').addEventListener('click', clearArchive);
 
   $$('.admin-filters .filter-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       $$('.admin-filters .filter-btn').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       currentFilter = btn.dataset.status;
+      updateArchiveToolbar();
       renderOrders();
     });
   });
 
   $('#ordersList').addEventListener('click', (e) => {
-    if (e.target.classList.contains('mark-paid-btn')) {
-      markOrderPaid(Number(e.target.dataset.id));
+    const target = e.target;
+    if (target.classList.contains('mark-paid-btn')) {
+      markOrderPaid(Number(target.dataset.id));
       return;
     }
-    if (e.target.classList.contains('delete-order-btn')) {
-      deleteOrder(Number(e.target.dataset.id), e.target.dataset.number);
+    if (target.classList.contains('archive-order-btn')) {
+      archiveOrder(Number(target.dataset.id), target.dataset.number);
+      return;
+    }
+    if (target.classList.contains('delete-order-btn')) {
+      deleteOrder(Number(target.dataset.id), target.dataset.number);
     }
   });
 

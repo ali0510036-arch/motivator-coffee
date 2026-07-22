@@ -196,10 +196,28 @@ app.patch('/api/orders/:id/status', requireAdmin, (req, res) => {
   res.json(order);
 });
 
-app.delete('/api/orders/:id', requireAdmin, (req, res) => {
-  const order = db.deleteOrder(Number(req.params.id));
+app.patch('/api/orders/:id/archive', requireAdmin, (req, res) => {
+  const order = db.archiveOrder(Number(req.params.id));
   if (!order) return res.status(404).json({ error: 'Заказ не найден' });
-  res.json({ ok: true, deleted: order });
+  res.json(order);
+});
+
+app.delete('/api/orders/:id', requireAdmin, (req, res) => {
+  const result = db.deleteOrder(Number(req.params.id));
+  if (!result) return res.status(404).json({ error: 'Заказ не найден' });
+  if (result.error === 'ORDER_NOT_ARCHIVED') {
+    return res.status(400).json({ error: 'Сначала переместите заказ в архив' });
+  }
+  res.json({ ok: true, deleted: result });
+});
+
+app.delete('/api/orders/archive', requireAdmin, (req, res) => {
+  const { confirm } = req.body || {};
+  if (confirm !== 'CLEAR_ARCHIVE') {
+    return res.status(400).json({ error: 'Для очистки архива передайте confirm: "CLEAR_ARCHIVE"' });
+  }
+  const deleted = db.clearArchivedOrders();
+  res.json({ ok: true, deleted });
 });
 
 app.delete('/api/orders', requireAdmin, (req, res) => {
@@ -212,6 +230,7 @@ app.delete('/api/orders', requireAdmin, (req, res) => {
 });
 
 app.get('/admin', (_req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
 });
 

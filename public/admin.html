@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/admin.css?v=5">
+  <link rel="stylesheet" href="/css/admin.css?v=6">
 </head>
 <body class="admin-body">
   <div id="loginScreen" class="admin-login">
@@ -45,15 +45,16 @@
         <button class="filter-btn" data-status="shipped">Отправлены</button>
         <button class="filter-btn" data-status="completed">Завершены</button>
         <button class="filter-btn" data-status="cancelled">Отменены</button>
+        <button class="filter-btn filter-btn--archive" data-status="archive">Архив</button>
       </div>
-      <div class="admin-toolbar">
-        <p class="admin-toolbar__hint">Удаление необратимо — используйте для тестовых заказов</p>
-        <button type="button" class="btn btn--outline admin-toolbar__clear" id="clearAllBtn">🗑 Очистить все заказы</button>
+      <div class="admin-toolbar admin-toolbar--archive" id="archiveToolbar" hidden>
+        <p class="admin-toolbar__hint">В архиве — тестовые и старые заказы. Удаление необратимо.</p>
+        <button type="button" class="btn btn--outline admin-toolbar__clear" id="clearArchiveBtn">Очистить архив</button>
       </div>
       <div class="admin-orders" id="ordersList"></div>
     </main>
   </div>
 
-  <script src="/js/admin.js?v=8"></script>
+  <script src="/js/admin.js?v=9"></script>
 </body>
 </html>

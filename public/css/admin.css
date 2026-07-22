@@ -163,6 +163,50 @@
   border-color: #FF5722;
 }
 
+.filter-btn--archive.active {
+  background: #5c4a42;
+  border-color: #8a7268;
+  color: #f2ebe3;
+}
+
+.order-card--archived {
+  opacity: 0.92;
+  border-color: rgba(138, 114, 104, 0.35);
+}
+
+.order-card__header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.order-card__archive {
+  padding: 4px 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #8E8680;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.order-card__archive:hover {
+  color: #c4b5a8;
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.order-card__archived-at {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: #6a635c;
+}
+
 .order-card {
   background: #161412;
   border: 1px solid rgba(255, 255, 255, 0.08);
