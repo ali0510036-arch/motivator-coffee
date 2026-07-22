@@ -857,9 +857,13 @@ body::before {
 /* ── Theme switcher UI ── */
 .theme-switcher {
   position: fixed;
-  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  bottom: 24px;
   left: 24px;
   z-index: 150;
+}
+
+body.has-add-box-bar .theme-switcher {
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
 }
 
 .theme-switcher__toggle {
@@ -963,7 +967,7 @@ body::before {
 }
 
 @media (max-width: 768px) {
-  .theme-switcher {
+  body.has-add-box-bar .theme-switcher {
     bottom: calc(96px + env(safe-area-inset-bottom, 0px));
     left: 16px;
   }

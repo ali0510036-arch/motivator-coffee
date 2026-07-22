@@ -4,7 +4,7 @@ let flavors = [];
 let boxSize = 12;
 let boxPrice = 2200;
 let selection = {};
-let boxMode = 'assortment';
+let boxMode = null;
 let singleFlavorId = null;
 let phoneVerificationToken = null;
 let phoneVerified = false;
@@ -87,11 +87,23 @@ function resetSelection() {
   flavors.forEach((f) => { selection[f.id] = 0; });
 }
 
-function setupMobileAddBar() {
-  /* Кнопка закреплена через CSS на мобилке — JS не нужен */
+function showAddBoxBar() {
+  const bar = document.getElementById('addBoxBar');
+  if (!bar) return;
+  bar.classList.add('is-visible');
+  document.body.classList.add('has-add-box-bar');
 }
 
-function pinMobileAddBar() {}
+function hideAddBoxBar() {
+  const bar = document.getElementById('addBoxBar');
+  if (!bar) return;
+  bar.classList.remove('is-visible');
+  document.body.classList.remove('has-add-box-bar');
+}
+
+function setupMobileAddBar() {
+  hideAddBoxBar();
+}
 
 async function init() {
   try {
@@ -105,8 +117,12 @@ async function init() {
   }
 
   resetSelection();
-  setBoxMode('assortment');
+  boxMode = null;
+  singleFlavorId = null;
   renderFlavorsPreview();
+  renderBoxBuilder();
+  updateProgress({ refreshModePicker: true, refreshSide: true });
+  hideAddBoxBar();
   updateCartUI();
   bindEvents();
   setupMobileAddBar();
@@ -476,6 +492,16 @@ function renderBuilderSide() {
   const side = document.getElementById('boxBuilderSide');
   if (!side) return;
 
+  if (!boxMode) {
+    side.innerHTML = `
+      <div class="box-side-summary">
+        <p class="box-side-summary__label">Тип упаковки</p>
+        <p class="box-side-summary__note">Нажмите «Ассорти» или выберите один вкус</p>
+      </div>
+    `;
+    return;
+  }
+
   if (boxMode === 'assortment') {
     side.innerHTML = `
       <div class="box-side-summary">
@@ -602,7 +628,9 @@ function updateProgress(options = {}) {
     addBtn.disabled = !ready;
     addBtn.textContent = ready
       ? `Добавить упаковку в корзину — ${formatPrice(boxPrice)}`
-      : (boxMode === 'single' ? 'Выберите вкус для упаковки' : 'Соберите упаковку');
+      : (!boxMode
+        ? 'Выберите тип упаковки'
+        : (boxMode === 'single' ? 'Выберите вкус для упаковки' : 'Соберите упаковку'));
   }
 
   updatePackBox();
@@ -613,7 +641,6 @@ function updateProgress(options = {}) {
 
 function setBoxMode(mode) {
   boxMode = mode;
-  pinMobileAddBar();
   if (mode === 'assortment') {
     singleFlavorId = null;
     applyAssortmentPreset();
@@ -629,14 +656,13 @@ function selectSingleFlavor(id) {
   if (!flavors.some((f) => f.id === id)) return;
   boxMode = 'single';
   singleFlavorId = id;
-  pinMobileAddBar();
   applyFlavorPreset(id);
 }
 
 function scrollToFlavorInBuilder(id) {
-  setBoxMode('single');
-  selectSingleFlavor(id);
-  pinMobileAddBar();
+  boxMode = 'single';
+  singleFlavorId = id;
+  applyFlavorPreset(id);
 
   const catalog = document.getElementById('catalog');
   if (catalog) {
@@ -655,6 +681,7 @@ function scrollToFlavorInBuilder(id) {
 function applyAssortmentPreset() {
   resetSelection();
   flavors.forEach((f) => { selection[f.id] = 2; });
+  showAddBoxBar();
   updateProgress({ refreshModePicker: true, refreshSide: true });
 }
 
@@ -662,7 +689,8 @@ function applyFlavorPreset(id) {
   if (!flavors.some((f) => f.id === id)) return;
   resetSelection();
   selection[id] = boxSize;
-  updateProgress({ refreshModePicker: true, refreshSide: false });
+  showAddBoxBar();
+  updateProgress({ refreshModePicker: true, refreshSide: true });
   updateSingleFlavorCards(id);
 }
 

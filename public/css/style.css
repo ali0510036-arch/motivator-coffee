@@ -2323,6 +2323,14 @@ body {
   background: var(--bg-card);
   border-top: 1px solid var(--border);
   box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.35);
+  transform: translateY(110%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+#addBoxBar.is-visible {
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 #addBoxBar .btn {
@@ -2332,12 +2340,12 @@ body {
   min-height: 50px;
 }
 
-body {
+body.has-add-box-bar {
   padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (max-width: 768px) {
-  body {
+  body.has-add-box-bar {
     padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
   }
 
