@@ -857,7 +857,7 @@ body::before {
 /* ── Theme switcher UI ── */
 .theme-switcher {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
   left: 24px;
   z-index: 150;
 }
@@ -964,14 +964,10 @@ body::before {
 
 @media (max-width: 768px) {
   .theme-switcher {
-    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
     left: 16px;
   }
   .theme-switcher__panel {
     min-width: 200px;
   }
-}
-
-body.has-mobile-add-bar .theme-switcher {
-  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
 }

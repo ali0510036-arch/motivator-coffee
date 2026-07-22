@@ -2313,12 +2313,27 @@ body {
     drop-shadow(0 0 16px color-mix(in srgb, var(--slot-color, transparent) 45%, transparent));
 }
 
-@media (min-width: 769px) {
-  #addBoxBar {
-    max-width: 520px;
-    margin: -36px auto 56px;
-    padding: 0 16px;
-  }
+#addBoxBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 190;
+  padding: 12px 20px max(14px, env(safe-area-inset-bottom, 0px));
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.35);
+}
+
+#addBoxBar .btn {
+  display: block;
+  max-width: 520px;
+  margin: 0 auto;
+  min-height: 50px;
+}
+
+body {
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (max-width: 768px) {
@@ -2327,22 +2342,11 @@ body {
   }
 
   #addBoxBar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 200;
-    width: 100%;
-    max-width: none;
-    margin: 0;
     padding: 10px 16px max(18px, env(safe-area-inset-bottom, 0px));
-    background: var(--bg-card);
-    border-top: 1px solid var(--border);
-    box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.4);
   }
 
   #addBoxBar .btn {
-    min-height: 50px;
+    max-width: none;
     font-size: 0.95rem;
   }
 
