@@ -240,6 +240,8 @@ function consumeVerification(token, rawPhone) {
 }
 
 function isVerificationEnabled() {
+  const flag = String(process.env.SMS_VERIFICATION || '').trim().toLowerCase();
+  if (flag !== 'true' && flag !== '1' && flag !== 'on') return false;
   return Boolean(process.env.SMSRU_API_ID?.trim());
 }
 
