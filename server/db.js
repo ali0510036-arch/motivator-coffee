@@ -93,6 +93,16 @@ function archiveOrder(id) {
   return orders[index];
 }
 
+function unarchiveOrder(id) {
+  const orders = readOrders();
+  const index = orders.findIndex((o) => o.id === id);
+  if (index === -1) return null;
+  orders[index].archived = false;
+  orders[index].archivedAt = null;
+  writeOrders(orders);
+  return orders[index];
+}
+
 function deleteOrder(id) {
   const orders = readOrders();
   const index = orders.findIndex((o) => o.id === id);
@@ -131,6 +141,7 @@ module.exports = {
   updateOrderPaymentStatus,
   markOrderPaidByNumber,
   archiveOrder,
+  unarchiveOrder,
   deleteOrder,
   clearArchivedOrders,
   deleteAllOrders,

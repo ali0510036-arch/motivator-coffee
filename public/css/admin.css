@@ -211,6 +211,25 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+.order-card__restore {
+  padding: 4px 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #7cb87c;
+  background: transparent;
+  border: 1px solid rgba(124, 184, 124, 0.35);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.order-card__restore:hover {
+  color: #a8d4a8;
+  border-color: rgba(124, 184, 124, 0.55);
+  background: rgba(124, 184, 124, 0.08);
+}
+
 .order-card__archived-at {
   display: block;
   margin-top: 2px;
@@ -366,6 +385,19 @@
   background: rgba(255, 87, 34, 0.08);
   border: 1px solid rgba(255, 87, 34, 0.28);
   border-radius: 12px;
+}
+
+.admin-toolbar__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-toolbar__count {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #F2EBE3;
 }
 
 .admin-toolbar__hint {

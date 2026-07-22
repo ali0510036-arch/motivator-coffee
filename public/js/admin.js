@@ -106,8 +106,17 @@ async function apiFetch(url, options = {}) {
 
 function updateArchiveToolbar() {
   const toolbar = $('#archiveToolbar');
-  if (!toolbar) return;
-  toolbar.hidden = currentFilter !== 'archive';
+  const stats = $('#adminStats');
+  const countEl = $('#archiveCount');
+  const count = archivedOrders().length;
+  const inArchive = currentFilter === 'archive';
+
+  if (toolbar) toolbar.hidden = !inArchive;
+  if (stats) stats.hidden = inArchive;
+  if (countEl) {
+    const word = count === 1 ? 'заказ' : count >= 2 && count <= 4 ? 'заказа' : 'заказов';
+    countEl.textContent = `${count} ${word} в архиве`;
+  }
 }
 
 async function loadOrders() {
@@ -130,14 +139,13 @@ function renderStats() {
     total: list.length,
     new: list.filter((o) => o.status === 'new').length,
     processing: list.filter((o) => o.status === 'processing').length,
-    archived: archivedOrders().length,
     revenue: list.filter((o) => o.status !== 'cancelled').reduce((s, o) => s + o.total, 0),
   };
 
   $('#adminStats').innerHTML = `
     <div class="stat-card">
       <div class="stat-card__value">${stats.total}</div>
-      <div class="stat-card__label">Активных</div>
+      <div class="stat-card__label">Всего заказов</div>
     </div>
     <div class="stat-card">
       <div class="stat-card__value">${stats.new}</div>
@@ -146,10 +154,6 @@ function renderStats() {
     <div class="stat-card">
       <div class="stat-card__value">${stats.processing}</div>
       <div class="stat-card__label">В обработке</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-card__value">${stats.archived}</div>
-      <div class="stat-card__label">В архиве</div>
     </div>
     <div class="stat-card">
       <div class="stat-card__value">${formatPrice(stats.revenue)}</div>
@@ -167,7 +171,10 @@ function getFilteredOrders() {
 
 function renderOrderCard(o, { archiveView }) {
   const archiveBtn = archiveView
-    ? `<button type="button" class="btn btn--outline btn--sm delete-order-btn" data-id="${o.id}" data-number="${o.orderNumber}">Удалить заказ</button>`
+    ? `
+        <button type="button" class="order-card__restore restore-order-btn" data-id="${o.id}" data-number="${o.orderNumber}">Вернуть</button>
+        <button type="button" class="btn btn--outline btn--sm delete-order-btn" data-id="${o.id}" data-number="${o.orderNumber}">Удалить</button>
+      `
     : `<button type="button" class="order-card__archive archive-order-btn" data-id="${o.id}" data-number="${o.orderNumber}">В архив</button>`;
 
   const statusControls = archiveView
@@ -285,6 +292,22 @@ async function archiveOrder(orderId, orderNumber) {
   }
 }
 
+async function restoreOrder(orderId, orderNumber) {
+  const label = orderNumber ? `#${orderNumber}` : `ID ${orderId}`;
+  if (!confirm(`Вернуть заказ ${label} из архива?`)) return;
+
+  try {
+    const res = await apiFetch(`/api/orders/${orderId}/unarchive`, { method: 'PATCH' });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Ошибка восстановления');
+    }
+    await loadOrders();
+  } catch (err) {
+    alert(err.message || 'Не удалось вернуть заказ');
+  }
+}
+
 async function deleteOrder(orderId, orderNumber) {
   const label = orderNumber ? `#${orderNumber}` : `ID ${orderId}`;
   if (!confirm(`Удалить заказ ${label} навсегда?`)) return;
@@ -376,6 +399,10 @@ function bindEvents() {
     }
     if (target.classList.contains('archive-order-btn')) {
       archiveOrder(Number(target.dataset.id), target.dataset.number);
+      return;
+    }
+    if (target.classList.contains('restore-order-btn')) {
+      restoreOrder(Number(target.dataset.id), target.dataset.number);
       return;
     }
     if (target.classList.contains('delete-order-btn')) {

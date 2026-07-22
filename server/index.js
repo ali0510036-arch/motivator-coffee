@@ -202,6 +202,12 @@ app.patch('/api/orders/:id/archive', requireAdmin, (req, res) => {
   res.json(order);
 });
 
+app.patch('/api/orders/:id/unarchive', requireAdmin, (req, res) => {
+  const order = db.unarchiveOrder(Number(req.params.id));
+  if (!order) return res.status(404).json({ error: 'Заказ не найден' });
+  res.json(order);
+});
+
 app.delete('/api/orders/:id', requireAdmin, (req, res) => {
   const result = db.deleteOrder(Number(req.params.id));
   if (!result) return res.status(404).json({ error: 'Заказ не найден' });

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/admin.css?v=6">
+  <link rel="stylesheet" href="/css/admin.css?v=7">
 </head>
 <body class="admin-body">
   <div id="loginScreen" class="admin-login">
@@ -29,7 +29,7 @@
       <div class="admin-header__inner">
         <h1>Заказы MOTIVATOR</h1>
         <div class="admin-header__actions">
-          <span class="admin-version" id="adminVersion">v9</span>
+          <span class="admin-version" id="adminVersion">v10</span>
           <button class="btn btn--ghost" id="refreshBtn">Обновить</button>
           <button class="btn btn--ghost" id="logoutBtn">Выйти</button>
         </div>
@@ -49,13 +49,16 @@
         <button class="filter-btn filter-btn--archive" data-status="archive">Архив</button>
       </div>
       <div class="admin-toolbar admin-toolbar--archive" id="archiveToolbar" hidden>
-        <p class="admin-toolbar__hint">В архиве — тестовые и старые заказы. Удаление необратимо.</p>
+        <div class="admin-toolbar__info">
+          <p class="admin-toolbar__count" id="archiveCount">0 заказов</p>
+          <p class="admin-toolbar__hint">Тестовые заказы можно вернуть или удалить навсегда</p>
+        </div>
         <button type="button" class="btn btn--outline admin-toolbar__clear" id="clearArchiveBtn">Очистить архив</button>
       </div>
       <div class="admin-orders" id="ordersList"></div>
     </main>
   </div>
 
-  <script src="/js/admin.js?v=9"></script>
+  <script src="/js/admin.js?v=10"></script>
 </body>
 </html>
