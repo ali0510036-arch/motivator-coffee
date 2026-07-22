@@ -11,38 +11,30 @@ const SOURCE = path.join(ROOT, 'flavors', 'pomegranate.png');
 const OUT = ROOT;
 const BG = { r: 10, g: 9, b: 8, alpha: 1 };
 
-async function buildIcon(size, cropTopRatio, cropHeightRatio, widthRatio = 0.88) {
-  const meta = await sharp(SOURCE).metadata();
-  const cropTop = Math.round(meta.height * cropTopRatio);
-  const cropHeight = Math.round(meta.height * cropHeightRatio);
+async function loadBottle() {
+  return sharp(SOURCE).trim({ threshold: 10 }).png().toBuffer();
+}
 
-  const cropped = await sharp(SOURCE)
-    .extract({ left: 0, top: cropTop, width: meta.width, height: cropHeight })
+async function buildIcon(size, paddingRatio = 0.94) {
+  const bottle = await loadBottle();
+  const inner = Math.max(1, Math.round(size * paddingRatio));
+  const resized = await sharp(bottle)
+    .resize({
+      width: inner,
+      height: inner,
+      fit: 'inside',
+    })
     .png()
     .toBuffer();
 
-  const targetWidth = Math.max(1, Math.round(size * widthRatio));
-  const resized = await sharp(cropped).resize({ width: targetWidth }).png().toBuffer();
   const resizedMeta = await sharp(resized).metadata();
-
-  let content = resized;
-  let top = Math.round((size - resizedMeta.height) / 2);
-  if (resizedMeta.height > size) {
-    const trimTop = Math.round((resizedMeta.height - size) / 2);
-    content = await sharp(resized)
-      .extract({ left: 0, top: trimTop, width: resizedMeta.width, height: size })
-      .png()
-      .toBuffer();
-    top = 0;
-  }
-
-  const contentMeta = await sharp(content).metadata();
-  const left = Math.round((size - contentMeta.width) / 2);
+  const left = Math.round((size - resizedMeta.width) / 2);
+  const top = Math.round((size - resizedMeta.height) / 2);
 
   return sharp({
     create: { width: size, height: size, channels: 4, background: BG },
   })
-    .composite([{ input: content, left, top }])
+    .composite([{ input: resized, left, top }])
     .png({ compressionLevel: 9 })
     .toBuffer();
 }
@@ -54,13 +46,13 @@ async function main() {
   }
 
   const outputs = [
-    ['favicon-32.png', 32, 0.04, 0.42, 0.9],
-    ['favicon-192.png', 192, 0.02, 0.58, 0.86],
-    ['apple-touch-icon.png', 180, 0.02, 0.58, 0.86],
+    ['favicon-32.png', 32],
+    ['favicon-192.png', 192],
+    ['apple-touch-icon.png', 180],
   ];
 
-  for (const [name, size, top, height, widthRatio] of outputs) {
-    const buf = await buildIcon(size, top, height, widthRatio);
+  for (const [name, size] of outputs) {
+    const buf = await buildIcon(size);
     const outPath = path.join(OUT, name);
     await fs.promises.writeFile(outPath, buf);
     console.log('saved', name, size + 'x' + size);
