@@ -1,11 +1,22 @@
 #!/bin/bash
-# Обновление сайта на сервере — запускать на VPS
+# Одной командой на сервере:
+# curl -fsSL https://raw.githubusercontent.com/ali0510036-arch/motivator-coffee/main/deploy/update.sh | bash
+
 set -e
-cd /var/www/motivator-coffee
+APP="/var/www/motivator-coffee"
+cd "$APP"
+
+echo "=== Текущая версия ==="
+grep -E "admin-version|admin.js\?v=" public/admin.html || true
+git log -1 --oneline || true
+
 echo "=== git pull ==="
-git pull origin main
+git fetch origin main
+git reset --hard origin/main
+
 echo "=== restart ==="
 pm2 restart motivator
-echo "=== versions ==="
-grep -E "admin\.(js|css)\?v=" public/admin.html || true
-echo "=== OK ==="
+
+echo "=== Новая версия ==="
+grep -E "admin-version|admin.js\?v=" public/admin.html || true
+echo "Готово. Откройте /admin и нажмите Ctrl+F5"
