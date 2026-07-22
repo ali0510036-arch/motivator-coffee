@@ -9,13 +9,18 @@ const sharp = require('sharp');
 const ROOT = path.join(__dirname, '..', 'public', 'images');
 const SOURCE = path.join(ROOT, 'flavors', 'pomegranate.png');
 const OUT = ROOT;
-const BG = { r: 10, g: 9, b: 8, alpha: 1 };
 
 async function loadBottle() {
-  return sharp(SOURCE).trim({ threshold: 10 }).png().toBuffer();
+  return sharp(SOURCE)
+    .trim({ threshold: 10 })
+    .modulate({ saturation: 1.35, brightness: 1.08 })
+    .linear(1.12, -(128 * 0.08))
+    .sharpen({ sigma: 0.8 })
+    .png()
+    .toBuffer();
 }
 
-async function buildIcon(size, paddingRatio = 0.94) {
+async function buildIcon(size, paddingRatio = 0.96) {
   const bottle = await loadBottle();
   const inner = Math.max(1, Math.round(size * paddingRatio));
   const resized = await sharp(bottle)
@@ -32,7 +37,12 @@ async function buildIcon(size, paddingRatio = 0.94) {
   const top = Math.round((size - resizedMeta.height) / 2);
 
   return sharp({
-    create: { width: size, height: size, channels: 4, background: BG },
+    create: {
+      width: size,
+      height: size,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
   })
     .composite([{ input: resized, left, top }])
     .png({ compressionLevel: 9 })
