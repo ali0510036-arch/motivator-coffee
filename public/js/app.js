@@ -87,6 +87,12 @@ function resetSelection() {
   flavors.forEach((f) => { selection[f.id] = 0; });
 }
 
+function setupMobileAddBar() {
+  /* Кнопка закреплена через CSS на мобилке — JS не нужен */
+}
+
+function pinMobileAddBar() {}
+
 async function init() {
   try {
     const res = await fetch('/api/catalog');
@@ -103,6 +109,7 @@ async function init() {
   renderFlavorsPreview();
   updateCartUI();
   bindEvents();
+  setupMobileAddBar();
   bindPhoneInput();
   loadSmsStatus();
   loadPaymentStatus();
@@ -526,9 +533,17 @@ function getSlotFlavors() {
 function renderSlotBottle(flavor) {
   return `
     <div class="pack-slot__bottle-wrap">
-      <img class="pack-slot__bottle" src="${flavor.image}" alt="${flavor.name}" loading="lazy">
+      <img class="pack-slot__bottle" src="${flavor.image}" alt="${flavor.name}" decoding="async" loading="eager">
     </div>
   `;
+}
+
+function updateSingleFlavorCards(id) {
+  document.querySelectorAll('.flavor-pick-card[data-flavor-id]').forEach((card) => {
+    const selected = card.dataset.flavorId === id;
+    card.classList.toggle('is-selected', selected);
+    card.setAttribute('aria-pressed', String(selected));
+  });
 }
 
 function updatePackBox() {
@@ -537,8 +552,15 @@ function updatePackBox() {
 
   document.querySelectorAll('#packBox .pack-slot').forEach((el, i) => {
     const flavor = slots[i];
+    const nextId = flavor?.id || '';
+    const prevId = el.dataset.flavorId || '';
     const wasFilled = el.classList.contains('filled');
+
     el.classList.toggle('filled', !!flavor);
+
+    if (flavor && prevId === nextId) return;
+
+    el.dataset.flavorId = nextId;
     if (flavor) {
       el.style.setProperty('--slot-color', flavor.color);
       el.innerHTML = renderSlotBottle(flavor);
@@ -570,7 +592,8 @@ function updatePackBox() {
   document.getElementById('packBox')?.classList.toggle('pack-box--complete', total === boxSize);
 }
 
-function updateProgress() {
+function updateProgress(options = {}) {
+  const { refreshModePicker = true, refreshSide = false } = options;
   const total = getSelectedTotal();
   const ready = total === boxSize;
 
@@ -583,12 +606,14 @@ function updateProgress() {
   }
 
   updatePackBox();
-  renderModePicker();
-  renderBuilderSide();
+  if (refreshModePicker) renderModePicker();
+  if (refreshSide) renderBuilderSide();
+  else if (boxMode === 'single' && singleFlavorId) updateSingleFlavorCards(singleFlavorId);
 }
 
 function setBoxMode(mode) {
   boxMode = mode;
+  pinMobileAddBar();
   if (mode === 'assortment') {
     singleFlavorId = null;
     applyAssortmentPreset();
@@ -597,19 +622,21 @@ function setBoxMode(mode) {
 
   resetSelection();
   if (singleFlavorId) applyFlavorPreset(singleFlavorId);
-  else updateProgress();
+  else updateProgress({ refreshModePicker: true, refreshSide: true });
 }
 
 function selectSingleFlavor(id) {
   if (!flavors.some((f) => f.id === id)) return;
   boxMode = 'single';
   singleFlavorId = id;
+  pinMobileAddBar();
   applyFlavorPreset(id);
 }
 
 function scrollToFlavorInBuilder(id) {
   setBoxMode('single');
   selectSingleFlavor(id);
+  pinMobileAddBar();
 
   const catalog = document.getElementById('catalog');
   if (catalog) {
@@ -628,14 +655,15 @@ function scrollToFlavorInBuilder(id) {
 function applyAssortmentPreset() {
   resetSelection();
   flavors.forEach((f) => { selection[f.id] = 2; });
-  updateProgress();
+  updateProgress({ refreshModePicker: true, refreshSide: true });
 }
 
 function applyFlavorPreset(id) {
   if (!flavors.some((f) => f.id === id)) return;
   resetSelection();
   selection[id] = boxSize;
-  updateProgress();
+  updateProgress({ refreshModePicker: true, refreshSide: false });
+  updateSingleFlavorCards(id);
 }
 
 function getCurrentBoxFlavors() {

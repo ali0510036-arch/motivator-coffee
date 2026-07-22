@@ -2,15 +2,15 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>MOTIVATOR — Cold Brew Coffee</title>
   <meta name="description" content="Холодный кофе MOTIVATOR — 6 натуральных вкусов. Соберите упаковку из 12 бутылок.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700;800&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=41">
-  <link rel="stylesheet" href="/css/themes.css?v=7">
-  <link rel="stylesheet" href="/css/effects.css?v=4">
+  <link rel="stylesheet" href="/css/style.css?v=48">
+  <link rel="stylesheet" href="/css/themes.css?v=10">
+  <link rel="stylesheet" href="/css/effects.css?v=8">
   <script>
     (function() {
       var t = localStorage.getItem('motivator_theme') || 'nexus';
@@ -340,13 +340,13 @@
 
           <div class="box-builder__side" id="boxBuilderSide"></div>
         </div>
-
-        <div class="box-builder__footer">
-          <button class="btn btn--primary btn--full btn--lg" id="addBoxBtn" disabled>Добавить упаковку в корзину</button>
-        </div>
       </div>
     </div>
   </section>
+
+  <div class="box-builder__footer" id="addBoxBar">
+    <button class="btn btn--primary btn--full btn--lg" id="addBoxBtn" disabled>Добавить упаковку в корзину</button>
+  </div>
 
   <section class="about" id="about">
     <div class="container about__inner">
@@ -587,8 +587,8 @@
     </div>
   </div>
 
-  <script src="/js/app.js?v=17"></script>
+  <script src="/js/app.js?v=23"></script>
   <script src="/js/themes.js"></script>
-  <script src="/js/effects.js"></script>
+  <script src="/js/effects.js?v=2"></script>
 </body>
 </html>

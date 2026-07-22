@@ -1,4 +1,9 @@
 function initEffects() {
+  if (window.matchMedia('(max-width: 768px)').matches) {
+    document.querySelectorAll('.reveal, .reveal-stagger').forEach((el) => el.classList.add('visible'));
+    initHeaderScroll();
+    return;
+  }
   initScrollReveal();
   initHeaderScroll();
   initHeroParallax();

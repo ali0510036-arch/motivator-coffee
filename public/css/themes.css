@@ -964,10 +964,14 @@ body::before {
 
 @media (max-width: 768px) {
   .theme-switcher {
-    bottom: 16px;
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
     left: 16px;
   }
   .theme-switcher__panel {
     min-width: 200px;
   }
+}
+
+body.has-mobile-add-bar .theme-switcher {
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
 }
