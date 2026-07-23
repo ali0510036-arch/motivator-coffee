@@ -3120,6 +3120,14 @@ body.has-add-box-bar {
 .phone-verify__status--success { color: #6ecf8f; }
 .phone-verify__status--error { color: #ff8a65; }
 
+.phone-verify__full {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #F2EBE3;
+  letter-spacing: 0.02em;
+}
+
 #submitOrderBtn:disabled {
   opacity: 0.55;
   cursor: not-allowed;

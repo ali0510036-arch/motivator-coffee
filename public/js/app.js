@@ -40,14 +40,22 @@ function formatPrice(n) {
   return n.toLocaleString('ru-RU') + ' ₽';
 }
 
+function parsePhoneDigits(raw) {
+  let digits = String(raw || '').replace(/\D/g, '');
+  if (digits.length >= 11 && (digits.startsWith('7') || digits.startsWith('8'))) {
+    digits = digits.slice(1);
+  }
+  return digits.slice(0, 10);
+}
+
 function getPhoneDigits() {
   const el = $('#phone');
   if (!el) return '';
-  return el.value.replace(/\D/g, '').slice(0, 10);
+  return parsePhoneDigits(el.value);
 }
 
 function formatPhoneLocal(digits) {
-  const d = digits.replace(/\D/g, '').slice(0, 10);
+  const d = parsePhoneDigits(digits);
   if (!d.length) return '';
   if (d.length <= 3) return `(${d}`;
   if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
@@ -55,9 +63,30 @@ function formatPhoneLocal(digits) {
   return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 8)}-${d.slice(8)}`;
 }
 
+/** Полный номер для API: 79634240343 */
 function getFullPhone() {
   const digits = getPhoneDigits();
-  return digits.length === 10 ? `+7${digits}` : '';
+  return digits.length === 10 ? `7${digits}` : '';
+}
+
+/** Для показа пользователю: +7 (963) 424-03-43 */
+function formatPhoneFull(digits) {
+  const d = parsePhoneDigits(digits);
+  if (d.length !== 10) return '';
+  return `+7 (${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 8)}-${d.slice(8)}`;
+}
+
+function updatePhonePreview() {
+  const preview = $('#phoneFullPreview');
+  if (!preview) return;
+  const full = formatPhoneFull(getPhoneDigits());
+  if (full) {
+    preview.textContent = full;
+    preview.hidden = false;
+  } else {
+    preview.textContent = '';
+    preview.hidden = true;
+  }
 }
 
 function bindPhoneInput() {
@@ -74,6 +103,7 @@ function bindPhoneInput() {
       phoneVerificationToken = null;
       input.readOnly = false;
     }
+    updatePhonePreview();
     updateSubmitButtonState();
   });
 }
@@ -868,6 +898,7 @@ async function loadSmsStatus() {
     phoneVerified = true;
     phoneVerificationToken = null;
   }
+  updatePhonePreview();
   updateSubmitButtonState();
 }
 
@@ -920,7 +951,7 @@ async function sendPhoneCode() {
 
     $('#phoneCodeRow').hidden = false;
     $('#phoneCode')?.focus();
-    setPhoneVerifyStatus(`Код отправлен на ${data.displayPhone}`, 'success');
+    setPhoneVerifyStatus(`Код отправлен на ${data.displayPhone || formatPhoneFull(getPhoneDigits())}`, 'success');
     startSmsCooldown(data.retryAfter || 60);
   } catch (err) {
     setPhoneVerifyStatus(err.message || 'Не удалось отправить SMS', 'error');
@@ -979,6 +1010,7 @@ function openCheckout() {
   if (phoneInput) phoneInput.readOnly = false;
 
   loadSmsStatus();
+  updatePhonePreview();
 
   const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
   $('#checkoutSummary').innerHTML = `

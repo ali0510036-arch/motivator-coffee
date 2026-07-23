@@ -97,9 +97,14 @@ async function sendSmsRu(phone, message, clientIp) {
     throw new Error('SMS не настроен на сервере (SMSRU_API_ID)');
   }
 
+  const to = normalizePhone(phone);
+  if (!to) {
+    throw new Error('Некорректный номер телефона');
+  }
+
   const body = new URLSearchParams({
     api_id: apiId,
-    to: phone,
+    to,
     msg: message,
     json: '1',
   });
@@ -128,7 +133,7 @@ async function sendSmsRu(phone, message, clientIp) {
     throw new Error('Некорректный ответ SMS.ru');
   }
 
-  parseSmsRuSendResponse(data, phone);
+  parseSmsRuSendResponse(data, to);
   return data;
 }
 
